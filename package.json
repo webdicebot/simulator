@@ -1,0 +1,29 @@
+{
+  "name": "dice-simulator",
+  "version": "2.0.0",
+  "description": "Dice Simulator - Professional betting simulation tool by WebDiceBot",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5174",
+    "build": "vite build",
+    "preview": "vite preview --port 5174",
+    "lint": "eslint src --ext .js,.vue",
+    "lint:fix": "eslint src --ext .js,.vue --fix",
+    "format": "prettier --write \"src/**/*.{js,vue,css,scss,json}\""
+  },
+  "dependencies": {
+    "@iconify/vue": "^4.3.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-vue": "^10.8.0",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "vite": "^6.1.0"
+  }
+}
