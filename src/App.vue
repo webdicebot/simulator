@@ -1,7 +1,13 @@
 <template>
   <div class="app-root">
     <!-- Header -->
-    <AppHeader :recent-rolls="recentRolls" :house-edge="config.houseEdge" @show-settings="showSettings = true" />
+    <AppHeader 
+      :recent-rolls="recentRolls" 
+      :house-edge="config.houseEdge" 
+      :fast-mode="config.fastMode"
+      @toggle-fast="config.fastMode = !config.fastMode"
+      @show-settings="showSettings = true" 
+    />
 
     <!-- Main Content -->
     <main class="main-content">
@@ -311,6 +317,12 @@ onMounted(() => {
     set silent(v) {
       config.silent = !!v
     },
+    get fastMode() {
+      return config.fastMode
+    },
+    set fastMode(v) {
+      config.fastMode = !!v
+    },
 
     // --- Core bet method (mirrors real dice API) ---
     async bet(amount, target, side) {
@@ -355,18 +367,31 @@ onMounted(() => {
         decimal: config.decimal,
         delay: config.delay,
         silent: config.silent,
+        fastMode: config.fastMode,
       }
     },
   }
 
   console.log('%c[DiceSim] Global API ready → window.DiceSim', 'color:#1d9bf0;font-weight:bold;font-size:13px')
   console.log('Usage: const result = await window.DiceSim.bet(amount, target, "over")')
+
+  // Expose window.FastMode for user scripts
+  Object.defineProperty(window, 'FastMode', {
+    get() {
+      return config.fastMode
+    },
+    set(v) {
+      config.fastMode = !!v
+    },
+    configurable: true
+  })
 })
 
 onUnmounted(() => {
   stopAuto()
   if (toastTimer) clearTimeout(toastTimer)
   delete window.DiceSim
+  delete window.FastMode
 })
 </script>
 

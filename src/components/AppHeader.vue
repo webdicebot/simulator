@@ -30,6 +30,15 @@
           <Icon icon="mdi:percent" :width="14" />
           RTP {{ rtp }}%
         </div>
+        <button 
+          id="btn-fastmode" 
+          class="icon-btn" 
+          :class="{ active: fastMode }" 
+          title="Fast Mode" 
+          @click="$emit('toggle-fast')"
+        >
+          <Icon icon="mdi:lightning-bolt" :width="20" />
+        </button>
         <button id="btn-help" class="icon-btn" title="Help" @click="showHelp = true">
           <Icon icon="mdi:help-circle-outline" :width="20" />
         </button>
@@ -98,9 +107,13 @@ const props = defineProps({
     type: Number,
     default: 1,
   },
+  fastMode: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-defineEmits(['show-settings'])
+defineEmits(['show-settings', 'toggle-fast'])
 
 const showHelp = ref(false)
 const rtp = computed(() => (100 - props.houseEdge).toFixed(2))
@@ -235,6 +248,11 @@ const rtp = computed(() => (100 - props.houseEdge).toFixed(2))
 .icon-btn:hover {
   background: var(--color-bg-hover);
   color: var(--color-text-primary);
+  border-color: var(--color-blue);
+}
+.icon-btn.active {
+  background: var(--color-blue-glow);
+  color: var(--color-blue);
   border-color: var(--color-blue);
 }
 

@@ -9,6 +9,7 @@ export function useSimulator() {
     delay: 0,
     houseEdge: 1,
     silent: false, // Thêm chế độ im lặng (Silent Mode)
+    fastMode: false, // Chế độ Fast Mode (Tốc độ cao)
     clientSeed: randomSeed(16),
     serverSeed: randomSeed(64),
     nonce: 0,
