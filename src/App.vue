@@ -59,6 +59,7 @@
       :show="showSettings"
       :config="config"
       @close="showSettings = false"
+      @update-config="updateConfig"
       @random-client="randomizeClientSeed"
       @random-server="randomizeServerSeed"
     />
@@ -247,6 +248,11 @@ function stopAuto() {
     autoTimer = null
   }
   isRolling.value = false
+}
+
+function updateConfig(newConfig) {
+  Object.assign(config, newConfig)
+  uiBalance.value = config.balance
 }
 
 onMounted(() => {

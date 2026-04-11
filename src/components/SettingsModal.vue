@@ -15,7 +15,7 @@
         <div class="modal-body">
           <!-- Balance -->
           <div class="setting-group">
-            <label class="setting-label">Starting Balance</label>
+            <label class="setting-label">Balance</label>
             <div class="input-row">
               <input
                 id="cfg-balance"
