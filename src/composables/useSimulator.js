@@ -1,4 +1,4 @@
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { rollDice, randomSeed, calcMultiplier, calcWinChance } from '@/utils/diceEngine.js'
 
 export function useSimulator() {
@@ -8,11 +8,16 @@ export function useSimulator() {
     decimal: 8,
     delay: 0,
     houseEdge: 1,
-    silent: false, // Thêm chế độ im lặng (Silent Mode)
-    fastMode: false, // Chế độ Fast Mode (Tốc độ cao)
+    silent: false,
+    fastMode: localStorage.getItem('fastMode') === 'true',
     clientSeed: randomSeed(16),
     serverSeed: randomSeed(64),
     nonce: 0,
+  })
+
+  // Persistence for Fast Mode
+  watch(() => config.fastMode, (newVal) => {
+    localStorage.setItem('fastMode', newVal)
   })
 
   // Bet state
