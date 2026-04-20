@@ -88,8 +88,9 @@ const launchGame = (path) => {
 }
 
 .launcher-logo {
-  height: 60px;
+  height: 100px;
   margin-bottom: 1rem;
+  border-radius: 24px;
 }
 
 .launcher-title {
