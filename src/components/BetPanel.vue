@@ -53,6 +53,37 @@
       </button>
     </div>
 
+    <!-- Limbo Specific Controls -->
+    <div v-if="currentGame === 'limbo'" class="limbo-controls">
+      <div class="control-field">
+        <label>Target Multiplier</label>
+        <div class="input-with-icon">
+          <input 
+            type="number" 
+            :value="limboTarget" 
+            step="0.01" 
+            min="1.01" 
+            @input="updateLimboTarget($event.target.value)"
+          />
+          <span class="input-suffix">x</span>
+        </div>
+      </div>
+      <div class="control-field">
+        <label>Win Chance</label>
+        <div class="input-with-icon">
+          <input 
+            type="number" 
+            :value="winChance" 
+            step="0.01" 
+            min="0.01" 
+            max="98" 
+            @input="updateWinChance($event.target.value)"
+          />
+          <span class="input-suffix">%</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Broke Overlay -->
     <Transition name="broke">
       <div v-if="isBroke" class="broke-overlay">
@@ -170,15 +201,27 @@ import { ref, reactive, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const props = defineProps({
+  currentGame: { type: String, default: 'dice' },
   amount: { type: Number, default: 1 },
   balance: { type: Number, default: 1000 },
   decimal: { type: Number, default: 8 },
   profitOnWin: { type: Number, default: 0 },
   isRolling: { type: Boolean, default: false },
   isAutoRunning: { type: Boolean, default: false },
+  // Limbo specific
+  limboTarget: { type: Number, default: 2.00 },
+  winChance: { type: Number, default: 49.5 },
 })
 
-defineEmits(['update:amount', 'bet', 'set-bet', 'auto-start', 'auto-stop', 'reset-balance'])
+const emit = defineEmits([
+  'update:amount', 
+  'bet', 
+  'set-bet', 
+  'auto-start', 
+  'auto-stop', 
+  'reset-balance',
+  'update:limboTarget',
+])
 
 const isBroke = computed(() => props.balance <= 0)
 
@@ -201,9 +244,62 @@ const formattedBalance = computed(() => {
 function toggleAuto() {
   autoExpanded.value = !autoExpanded.value
 }
+
+function updateLimboTarget(val) {
+  emit('update:limboTarget', Number(val))
+}
+
+function updateWinChance(val) {
+  // Win Chance = 99 / Target Multiplier -> Target Multiplier = 99 / Win Chance
+  const target = 99 / Number(val)
+  emit('update:limboTarget', Number(target.toFixed(4)))
+}
 </script>
 
 <style scoped>
+.limbo-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 0 16px 14px;
+}
+.control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.control-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0 10px;
+}
+.input-with-icon input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+  min-width: 0;
+}
+.input-suffix {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
 .bet-panel {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);

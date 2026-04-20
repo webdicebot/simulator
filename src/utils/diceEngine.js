@@ -60,3 +60,18 @@ export function calcMultiplier(target, side, houseEdge) {
 export function calcWinChance(target, side) {
   return side === 'over' ? 100 - target : target
 }
+
+// --- Limbo Specific ---
+export function calcLimboWinChance(targetMultiplier, houseEdge = 1) {
+  const houseEdgeMultiplier = 1 - houseEdge / 100
+  return (100 / targetMultiplier) * houseEdgeMultiplier
+}
+
+export function calcLimboMultiplier(resultNumber, houseEdge = 1) {
+  const houseEdgeMultiplier = 1 - houseEdge / 100
+  // resultNumber is 0-99.99
+  // If resultNumber is 0, we clamp to avoid infinity
+  const chance = Math.max(0.01, resultNumber)
+  const multiplier = (100 / chance) * houseEdgeMultiplier
+  return Math.max(1.00, multiplier)
+}

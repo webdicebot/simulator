@@ -16,7 +16,12 @@
         <TransitionGroup name="ticker" tag="div" class="ticker-list">
           <div v-for="roll in recentRolls.slice(0, 8)" :key="roll.nonce" class="ticker-item"
             :class="roll.win ? 'win' : 'lose'">
-            {{ roll.resultNumber.toString().padStart(2, '0') }}
+            <template v-if="roll.game === 'limbo'">
+              {{ roll.resultMultiplier.toFixed(2) }}x
+            </template>
+            <template v-else>
+              {{ roll.resultNumber.toFixed(2) }}
+            </template>
           </div>
         </TransitionGroup>
       </div>

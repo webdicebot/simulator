@@ -19,7 +19,28 @@
 
         <!-- Center: Game Board -->
         <section class="center-column">
+          <!-- Game Switcher -->
+          <div class="game-switcher">
+            <button 
+              class="game-tab" 
+              :class="{ active: config.currentGame === 'dice' }"
+              @click="config.currentGame = 'dice'"
+            >
+              <Icon icon="mdi:dice-6" :width="18" />
+              Dice
+            </button>
+            <button 
+              class="game-tab" 
+              :class="{ active: config.currentGame === 'limbo' }"
+              @click="config.currentGame = 'limbo'"
+            >
+              <Icon icon="mdi:rocket-launch" :width="18" />
+              Limbo
+            </button>
+          </div>
+
           <DiceBoard
+            v-if="config.currentGame === 'dice'"
             :target="config.silent ? uiTarget : bet.target"
             :side="config.silent ? uiSide : bet.side"
             :multiplier="config.silent ? uiMultiplier : multiplier"
@@ -31,14 +52,25 @@
             @update:side="(val) => (bet.side = val)"
           />
 
+          <LimboBoard
+            v-else
+            :history="limboHistory"
+            :last-result="lastResult"
+            :is-rolling="isRolling"
+          />
+
           <BetPanel
+            :current-game="config.currentGame"
             :amount="config.silent ? uiBetAmount : bet.amount"
             :balance="config.silent ? uiBalance : config.balance"
             :decimal="config.decimal"
             :profit-on-win="config.silent ? uiProfitOnWin : profitOnWin"
             :is-rolling="isRolling"
             :is-auto-running="isAutoRunning"
+            :limbo-target="config.silent ? uiLimboTarget : bet.limboTarget"
+            :win-chance="config.silent ? uiWinChance : winChance"
             @update:amount="(val) => (bet.amount = val)"
+            @update:limbo-target="(val) => (bet.limboTarget = val)"
             @bet="handleManualBet"
             @set-bet="setBet"
             @auto-start="startAuto"
@@ -87,6 +119,7 @@ import { useSimulator } from '@/composables/useSimulator.js'
 
 import AppHeader from '@/components/AppHeader.vue'
 import DiceBoard from '@/components/DiceBoard.vue'
+import LimboBoard from '@/components/LimboBoard.vue'
 import BetPanel from '@/components/BetPanel.vue'
 import StatsPanel from '@/components/StatsPanel.vue'
 import BetHistory from '@/components/BetHistory.vue'
@@ -95,9 +128,10 @@ import SettingsModal from '@/components/SettingsModal.vue'
 const {
   config,
   bet,
-  isRunning,
+  isRolling,
   lastResult,
   recentRolls,
+  limboHistory,
   uiBalance,
   uiBetAmount,
   uiProfitOnWin,
@@ -105,6 +139,7 @@ const {
   uiSide,
   uiMultiplier,
   uiWinChance,
+  uiLimboTarget,
   stats,
   multiplier,
   winChance,
@@ -117,7 +152,6 @@ const {
 
 // UI state
 const showSettings = ref(false)
-const isRolling = ref(false)
 const isAutoRunning = ref(false)
 
 // Toast
@@ -157,7 +191,6 @@ async function handleManualBet() {
 }
 
 async function doRoll() {
-  isRolling.value = true
   try {
     const result = await placeBet()
     if (result.error) {
@@ -166,15 +199,14 @@ async function doRoll() {
       const msg = result.win ? `WIN! +${result.profit.toFixed(6)}` : `LOSS: -${Math.abs(result.profit).toFixed(6)}`
       showToast(msg, result.win ? 'win' : 'lose')
     }
-  } finally {
-    isRolling.value = false
+  } catch (err) {
+    console.error(err)
   }
 }
 
 async function startAuto(conf) {
   if (isAutoRunning.value) return
   isAutoRunning.value = true
-  isRunning.value = true
   autoConf = conf
   autoRemaining = conf.count === 0 ? Infinity : conf.count
   initialBet = bet.amount
@@ -196,7 +228,6 @@ async function startAuto(conf) {
       return
     }
 
-    isRolling.value = true
     try {
       const result = await placeBet()
       if (result.error) {
@@ -229,8 +260,10 @@ async function startAuto(conf) {
         stopAuto()
         return
       }
-    } finally {
-      isRolling.value = false
+    } catch (err) {
+      console.error(err)
+      stopAuto()
+      return
     }
 
     const delay = config.delay * 1000 || 50
@@ -242,7 +275,6 @@ async function startAuto(conf) {
 
 function stopAuto() {
   isAutoRunning.value = false
-  isRunning.value = false
   if (autoTimer) {
     clearTimeout(autoTimer)
     autoTimer = null
@@ -428,6 +460,41 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* Game Switcher */
+.game-switcher {
+  display: flex;
+  background: var(--color-bg-card);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  gap: 4px;
+}
+.game-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+.game-tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-hover);
+}
+.game-tab.active {
+  background: var(--color-bg-input);
+  color: var(--color-blue);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Toast */

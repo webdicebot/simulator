@@ -31,8 +31,13 @@
         >
           <span class="col-nonce">{{ roll.nonce }}</span>
           <span class="col-result" :class="roll.win ? 'win-val' : 'lose-val'">
-            {{ roll.resultNumber.toString().padStart(2, '0') }}
-            <span class="side-tag">{{ roll.side === 'under' ? '↓' : '↑' }}</span>
+            <template v-if="roll.game === 'limbo'">
+              {{ roll.resultMultiplier.toFixed(2) }}x
+            </template>
+            <template v-else>
+              {{ roll.resultNumber.toFixed(2) }}
+              <span class="side-tag">{{ roll.side === 'under' ? '↓' : '↑' }}</span>
+            </template>
           </span>
           <span class="col-target">{{ roll.target }}</span>
           <span class="col-profit" :class="roll.win ? 'win-val' : 'lose-val'">
@@ -97,7 +102,12 @@
             <div class="vfield">
               <label>Result</label>
               <code :class="verifyRoll.win ? 'val-green' : 'val-red'">
-                {{ verifyRoll.resultNumber.toString().padStart(2, '0') }}
+                <template v-if="verifyRoll.game === 'limbo'">
+                  {{ verifyRoll.resultMultiplier.toFixed(2) }}x
+                </template>
+                <template v-else>
+                  {{ verifyRoll.resultNumber.toFixed(2) }}
+                </template>
                 {{ verifyRoll.win ? '✓ WIN' : '✗ LOSS' }}
               </code>
             </div>
@@ -124,8 +134,15 @@
             <div class="hash-calc">
               <span class="calc-step">0x{{ computedHash.slice(0, 5) }}</span>
               <span class="calc-op">= {{ parseInt(computedHash.slice(0, 5), 16) }}</span>
-              <span class="calc-op">% 10000 / 100</span>
-              <span class="calc-result">= {{ computedResult }}</span>
+              <template v-if="verifyRoll.game === 'limbo'">
+                <span class="calc-op">% 10000 / 100 → resultNumber</span>
+                <span class="calc-op">99 / resultNumber</span>
+                <span class="calc-result">= {{ computedResultMultiplier.toFixed(2) }}x</span>
+              </template>
+              <template v-else>
+                <span class="calc-op">% 10000 / 100</span>
+                <span class="calc-result">= {{ computedResult.toFixed(2) }}</span>
+              </template>
             </div>
           </div>
         </div>
@@ -155,12 +172,14 @@ const verifyRoll = ref(null)
 const verifyStatus = ref('checking') // 'checking' | 'valid' | 'invalid'
 const computedHash = ref('')
 const computedResult = ref(null)
+const computedResultMultiplier = ref(null)
 
 function openVerify(roll) {
   verifyRoll.value = roll
   verifyStatus.value = 'checking'
   computedHash.value = ''
   computedResult.value = null
+  computedResultMultiplier.value = null
   runVerify(roll)
 }
 
@@ -187,7 +206,15 @@ function runVerify(roll) {
   const result = (decimal % 10000) / 100
 
   computedResult.value = result
-  verifyStatus.value = result === roll.resultNumber ? 'valid' : 'invalid'
+  
+  if (roll.game === 'limbo') {
+    // resultMultiplier = 99 / resultNumber (clamped)
+    const chance = Math.max(0.01, result)
+    computedResultMultiplier.value = 99 / chance
+    verifyStatus.value = Math.abs(computedResultMultiplier.value - roll.resultMultiplier) < 0.0001 ? 'valid' : 'invalid'
+  } else {
+    verifyStatus.value = result === roll.resultNumber ? 'valid' : 'invalid'
+  }
 }
 </script>
 
