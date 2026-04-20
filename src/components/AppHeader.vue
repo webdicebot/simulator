@@ -3,6 +3,9 @@
     <div class="header-inner">
       <!-- Logo -->
       <div class="logo-area">
+        <button class="icon-btn home-btn" title="Game Launcher" @click="$emit('go-home')">
+          <Icon icon="mdi:home" :width="20" />
+        </button>
         <!-- <img src="/logo.png" alt="Dice Simulator" class="logo-img" /> -->
         <div class="logo-text">
           <div class="since-badge">Since 2019</div>
@@ -110,7 +113,7 @@ const props = defineProps({
   },
 })
 
-defineEmits(['show-settings', 'toggle-fast'])
+defineEmits(['show-settings', 'toggle-fast', 'go-home'])
 
 const showHelp = ref(false)
 const rtp = computed(() => (100 - props.houseEdge).toFixed(2))
@@ -143,6 +146,14 @@ const rtp = computed(() => (100 - props.houseEdge).toFixed(2))
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+}
+
+.home-btn {
+  color: var(--color-text-muted);
+}
+.home-btn:hover {
+  color: var(--color-blue);
+  border-color: var(--color-blue);
 }
 
 .logo-img {
