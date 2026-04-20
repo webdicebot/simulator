@@ -92,7 +92,57 @@ onMounted(() => {
     configurable: true,
   })
 
-  console.log('%c[DiceSim] Global API ready → window.DiceSim', 'color:#1d9bf0;font-weight:bold;font-size:13px')
+  // ── API Reference Log ──────────────────────────────────────────────────
+  console.log(
+    '%c🎲 Web DiceBot Simulator — Dice API Ready',
+    'background:#1d9bf0;color:#fff;font-weight:800;font-size:14px;padding:4px 12px;border-radius:6px'
+  )
+  console.log(
+    '%c  window.DiceSim  is available in the console. Use it to inject bot scripts.',
+    'color:#94a3b8;font-size:12px'
+  )
+
+  console.group('%c📦 Properties (read/write)', 'color:#3fb950;font-weight:700;font-size:12px')
+  console.table({
+    'DiceSim.balance':     { type: 'number (get)',       description: 'Current balance' },
+    'DiceSim.silent':      { type: 'boolean (get/set)',  description: 'Silent mode — skips UI updates for speed' },
+    'DiceSim.fastMode':    { type: 'boolean (get/set)',  description: 'Fast mode toggle' },
+    'DiceSim.nonce':       { type: 'number (get)',        description: 'Current nonce counter' },
+    'DiceSim.clientSeed':  { type: 'string (get)',        description: 'Active client seed' },
+    'DiceSim.serverSeed':  { type: 'string (get)',        description: 'Active server seed' },
+    'DiceSim.lastResult':  { type: 'object (get)',        description: 'Last bet result object' },
+    'DiceSim.decimal':     { type: 'number (get)',        description: 'Decimal precision for display' },
+  })
+  console.groupEnd()
+
+  console.group('%c⚡ Methods', 'color:#f0a500;font-weight:700;font-size:12px')
+  console.table({
+    'DiceSim.bet(amount, target, side)': { description: 'Place a single bet. side: "over"|"under"', returns: 'Promise<result>' },
+    'DiceSim.setBalance(amount)':        { description: 'Override current balance',                  returns: 'void' },
+    'DiceSim.setDelay(seconds)':         { description: 'Set delay between auto bets (seconds)',      returns: 'void' },
+    'DiceSim.setHouseEdge(pct)':         { description: 'Set house edge % (default 1)',              returns: 'void' },
+    'DiceSim.rotateSeed()':              { description: 'Rotate to a new random client seed',        returns: 'void' },
+    'DiceSim.getConfig()':               { description: 'Get full config snapshot object',           returns: 'object' },
+  })
+  console.groupEnd()
+
+  console.group('%c📋 Quick Start Examples', 'color:#1d9bf0;font-weight:700;font-size:12px')
+  console.log('%cManual single bet:', 'color:#94a3b8;font-size:11px')
+  console.log('%c  const r = await DiceSim.bet(1, 49.5, "under")\n  console.log(r.win, r.profit, r.balance)', 'color:#e6edf3;font-family:monospace;font-size:11px')
+  console.log('%cSimple Martingale loop:', 'color:#94a3b8;font-size:11px')
+  console.log(
+    '%c  DiceSim.silent = true\n' +
+    '  let base = 1\n' +
+    '  for (let i = 0; i < 100; i++) {\n' +
+    '    const r = await DiceSim.bet(base, 49.5, "under")\n' +
+    '    base = r.win ? 1 : base * 2\n' +
+    '  }\n' +
+    '  DiceSim.silent = false',
+    'color:#e6edf3;font-family:monospace;font-size:11px'
+  )
+  console.groupEnd()
+
+  console.log('%c  window.FastMode = true/false  ← shortcut for DiceSim.fastMode', 'color:#475569;font-size:11px')
 })
 
 onUnmounted(() => {
