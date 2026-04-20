@@ -3,11 +3,11 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import GameLayout from '@/layouts/GameLayout.vue'
 import DiceBoard from '@/components/DiceBoard.vue'
 import BetPanel from '@/components/BetPanel.vue'
-import { simulatorStore } from '@/store/simulatorStore.js'
+import { diceStore } from '@/store/diceStore.js'
 import { useBetController } from '@/composables/useBetController.js'
 
 const layoutRef = ref(null)
-const simulator = simulatorStore
+const simulator = diceStore
 
 const {
   config,
@@ -103,7 +103,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GameLayout ref="layoutRef">
+  <GameLayout ref="layoutRef" :simulator="simulator">
     <DiceBoard
       :target="config.silent ? uiTarget : bet.target"
       :side="config.silent ? uiSide : bet.side"

@@ -2,12 +2,19 @@
 import { ref, reactive, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
-import { simulatorStore } from '@/store/simulatorStore.js'
 
 import AppHeader from '@/components/AppHeader.vue'
 import StatsPanel from '@/components/StatsPanel.vue'
 import BetHistory from '@/components/BetHistory.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
+
+// Each game view injects its own isolated store instance via this prop
+const props = defineProps({
+  simulator: {
+    type: Object,
+    required: true,
+  },
+})
 
 const router = useRouter()
 
@@ -19,7 +26,7 @@ const {
   resetStats,
   randomizeClientSeed,
   randomizeServerSeed,
-} = simulatorStore
+} = props.simulator
 
 const showSettings = ref(false)
 

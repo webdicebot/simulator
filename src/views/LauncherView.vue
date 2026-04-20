@@ -8,7 +8,7 @@ const games = [
   {
     id: 'dice',
     name: 'Dice',
-    description: 'Predict the outcome of the roll and win based on your choice.',
+    description: 'Test your betting scripts by webdicebot.net',
     icon: 'mdi:dice-6',
     color: '#1d9bf0',
     path: '/dice'
@@ -16,7 +16,7 @@ const games = [
   {
     id: 'limbo',
     name: 'Limbo',
-    description: 'Set your target and watch the multiplier fly to the moon.',
+    description: 'Test your betting scripts by webdicebot.net',
     icon: 'mdi:rocket-launch',
     color: '#f01d1d',
     path: '/limbo'
@@ -49,12 +49,12 @@ const launchGame = (path) => {
           </div>
           <div class="game-card-info">
             <h2 class="game-name">{{ game.name }}</h2>
-            <p class="game-desc">{{ game.description }}</p>
+            <!-- <p class="game-desc">{{ game.description }}</p> -->
           </div>
-          <button class="launch-btn" :style="{ backgroundColor: game.color }">
+          <!-- <button class="launch-btn" :style="{ backgroundColor: game.color }">
             Launch Game
             <Icon icon="mdi:chevron-right" width="20" />
-          </button>
+          </button> -->
         </div>
       </div>
 

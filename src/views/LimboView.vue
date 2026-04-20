@@ -3,11 +3,11 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import GameLayout from '@/layouts/GameLayout.vue'
 import LimboBoard from '@/components/LimboBoard.vue'
 import BetPanel from '@/components/BetPanel.vue'
-import { simulatorStore } from '@/store/simulatorStore.js'
+import { limboStore } from '@/store/limboStore.js'
 import { useBetController } from '@/composables/useBetController.js'
 
 const layoutRef = ref(null)
-const simulator = simulatorStore
+const simulator = limboStore
 const { config, bet, isRolling, lastResult, limboHistory, uiBalance, uiBetAmount, uiProfitOnWin, uiLimboTarget, uiWinChance, profitOnWin, winChance } = simulator
 
 const { 
@@ -45,7 +45,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GameLayout ref="layoutRef">
+  <GameLayout ref="layoutRef" :simulator="simulator">
     <LimboBoard
       :history="limboHistory"
       :last-result="lastResult"
