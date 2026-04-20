@@ -125,22 +125,29 @@ export function useSimulator() {
   }
 
   async function placeBet() {
-    if (isRolling.value) return { error: 'Already rolling' }
-    if (bet.amount <= 0) return { error: 'Amount must be > 0' }
-    
-    if (config.currentGame === 'dice') {
-      if (bet.target <= 0 || bet.target > 99) return { error: 'Target must be 1–99' }
-    } else {
-      if (bet.limboTarget < 1.01) return { error: 'Target must be >= 1.01' }
-    }
-    
-    if (config.balance < bet.amount) return { error: 'Insufficient balance' }
-
     isRolling.value = true
     
-    // Simulate delay for visual effect
-    const delay = config.silent ? 50 : 800
-    await new Promise(resolve => setTimeout(resolve, delay))
+    if (bet.amount <= 0) {
+      isRolling.value = false
+      return { error: 'Amount must be > 0' }
+    }
+    
+    if (config.currentGame === 'dice') {
+      if (bet.target <= 0 || bet.target > 99) {
+        isRolling.value = false
+        return { error: 'Target must be 1–99' }
+      }
+    } else {
+      if (bet.limboTarget < 1.01) {
+        isRolling.value = false
+        return { error: 'Target must be >= 1.01' }
+      }
+    }
+    
+    if (config.balance < bet.amount) {
+      isRolling.value = false
+      return { error: 'Insufficient balance' }
+    }
 
     config.nonce += 1
 
