@@ -56,7 +56,7 @@
         <div class="help-header">
           <div class="help-title">
             <Icon icon="mdi:information-outline" :width="20" />
-            About Dice Simulator
+            About Simulator
           </div>
           <button class="help-close" @click="showHelp = false">
             <Icon icon="mdi:close" :width="18" />
@@ -70,7 +70,7 @@
 
           <p class="help-message">
             A tool for testing your script. It only supports the script testing process and does not reflect actual
-            profits when applied to real dice sites.
+            profits when applied to real dice sites
           </p>
 
           <!-- <div class="help-api-box">
