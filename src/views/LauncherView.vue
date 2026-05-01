@@ -11,7 +11,7 @@ const games = [
     description: 'Test your betting scripts by webdicebot.net',
     icon: 'mdi:dice-6',
     color: '#1d9bf0',
-    path: '/dice'
+    path: '/dice',
   },
   {
     id: 'limbo',
@@ -19,8 +19,8 @@ const games = [
     description: 'Test your betting scripts by webdicebot.net',
     icon: 'mdi:rocket-launch',
     color: '#f01d1d',
-    path: '/limbo'
-  }
+    path: '/limbo',
+  },
 ]
 
 const launchGame = (path) => {
@@ -34,16 +34,11 @@ const launchGame = (path) => {
       <header class="launcher-header">
         <img src="/logo.png" alt="Logo" class="launcher-logo" v-if="true" />
         <h1 class="launcher-title">Web DiceBot <span>Simulator</span></h1>
-        <p class="launcher-subtitle">Choose a game to start your simulation</p>
+        <p class="launcher-subtitle">Choose a game before install bot</p>
       </header>
 
       <div class="game-grid">
-        <div 
-          v-for="game in games" 
-          :key="game.id" 
-          class="game-card"
-          @click="launchGame(game.path)"
-        >
+        <div v-for="game in games" :key="game.id" class="game-card" @click="launchGame(game.path)">
           <div class="game-card-icon" :style="{ backgroundColor: game.color + '22', color: game.color }">
             <Icon :icon="game.icon" width="48" />
           </div>
@@ -193,12 +188,24 @@ const launchGame = (path) => {
 }
 
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
