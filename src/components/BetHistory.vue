@@ -34,12 +34,20 @@
             <template v-if="roll.game === 'limbo'">
               {{ roll.resultMultiplier.toFixed(2) }}x
             </template>
+            <template v-else-if="roll.game === 'mines'">
+              {{ roll.win ? `${roll.multiplier.toFixed(2)}x` : 'BOOM' }}
+            </template>
             <template v-else>
               {{ roll.resultNumber.toFixed(2) }}
               <span class="side-tag">{{ roll.side === 'under' ? '↓' : '↑' }}</span>
             </template>
           </span>
-          <span class="col-target">{{ roll.target }}</span>
+          <span class="col-target">
+            <template v-if="roll.game === 'mines'">
+              {{ roll.minesPicks.length }}p / {{ roll.minesTarget }}m
+            </template>
+            <template v-else>{{ roll.target }}</template>
+          </span>
           <span class="col-profit" :class="roll.win ? 'win-val' : 'lose-val'">
             {{ roll.win ? '+' : '' }}{{ roll.profit.toFixed(6) }}
           </span>
@@ -105,6 +113,9 @@
                 <template v-if="verifyRoll.game === 'limbo'">
                   {{ verifyRoll.resultMultiplier.toFixed(2) }}x
                 </template>
+                <template v-else-if="verifyRoll.game === 'mines'">
+                  {{ verifyRoll.mines.join(', ') }}
+                </template>
                 <template v-else>
                   {{ verifyRoll.resultNumber.toFixed(2) }}
                 </template>
@@ -122,7 +133,7 @@
           </div>
 
           <!-- Hash output -->
-          <div v-if="computedHash" class="hash-section">
+          <div v-if="computedHash && verifyRoll.game !== 'mines'" class="hash-section">
             <label class="hash-label">
               <Icon icon="mdi:lock-outline" :width="13" />
               HMAC-SHA512 Output (first 5 hex chars used)
@@ -156,6 +167,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import { generateMines } from '@/utils/diceEngine.js'
 
 defineProps({
   rolls: {
@@ -187,6 +199,16 @@ function runVerify(roll) {
   const serverSeed = roll.serverSeed
   const clientSeed = roll.clientSeed
   const nonce = roll.nonce
+
+  if (roll.game === 'mines') {
+    const mines = generateMines(serverSeed, clientSeed, nonce, roll.minesTarget)
+    computedResult.value = mines.join(', ')
+    verifyStatus.value =
+      mines.length === roll.mines.length && mines.every((mine, index) => mine === roll.mines[index])
+        ? 'valid'
+        : 'invalid'
+    return
+  }
 
   // Use the SAME fast hash as diceEngine.js
   let hashVal = 0n

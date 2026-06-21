@@ -22,6 +22,8 @@ export function useBetHistory() {
   const uiMultiplier = ref(0)
   const uiWinChance = ref(0)
   const uiLimboTarget = ref(2.0)
+  const uiMinesTarget = ref(3)
+  const uiMinesPicks = ref([1, 5, 10, 15, 20])
 
   /**
    * Record a completed bet result into history.
@@ -54,6 +56,8 @@ export function useBetHistory() {
     uiMultiplier.value = snapshot.multiplier
     uiWinChance.value = snapshot.winChance
     uiLimboTarget.value = snapshot.limboTarget
+    uiMinesTarget.value = snapshot.minesTarget
+    uiMinesPicks.value = [...snapshot.minesPicks]
   }
 
   /**
@@ -85,6 +89,8 @@ export function useBetHistory() {
     uiMultiplier,
     uiWinChance,
     uiLimboTarget,
+    uiMinesTarget,
+    uiMinesPicks,
     // Actions
     recordHistory,
     syncUI,

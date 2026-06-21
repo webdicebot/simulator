@@ -75,3 +75,49 @@ export function calcLimboMultiplier(resultNumber, houseEdge = 1) {
   const multiplier = (100 / chance) * houseEdgeMultiplier
   return Math.max(1.00, multiplier)
 }
+
+// --- Mines 6x4 Specific ---
+function createMinesRandom(serverSeed, clientSeed, nonce) {
+  const hash = sha512(serverSeed, `${clientSeed}-${nonce}-mines`)
+  let state = Number(BigInt(`0x${hash}`) & 0xffffffffn) || 0x6d2b79f5
+
+  return function nextRandom() {
+    state = (state + 0x6d2b79f5) >>> 0
+    let value = state
+    value = Math.imul(value ^ (value >>> 15), value | 1)
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61)
+    return ((value ^ (value >>> 14)) >>> 0) / 0x100000000
+  }
+}
+
+export function generateMines(serverSeed, clientSeed, nonce, bombCount, tileCount = 24) {
+  const tiles = Array.from({ length: tileCount }, (_, index) => index)
+  const random = createMinesRandom(serverSeed, clientSeed, nonce)
+
+  for (let index = 0; index < bombCount; index++) {
+    const swapIndex = index + Math.floor(random() * (tileCount - index))
+    const tile = tiles[index]
+    tiles[index] = tiles[swapIndex]
+    tiles[swapIndex] = tile
+  }
+
+  return tiles.slice(0, bombCount).sort((a, b) => a - b)
+}
+
+export function calcMinesWinChance(bombCount, pickCount, tileCount = 24) {
+  if (pickCount <= 0) return 100
+  if (bombCount < 1 || bombCount >= tileCount || pickCount > tileCount - bombCount) return 0
+
+  let probability = 1
+  for (let index = 0; index < pickCount; index++) {
+    probability *= (tileCount - bombCount - index) / (tileCount - index)
+  }
+  return probability * 100
+}
+
+export function calcMinesMultiplier(bombCount, pickCount, houseEdge = 1, tileCount = 24) {
+  if (pickCount <= 0) return 0
+  const winChance = calcMinesWinChance(bombCount, pickCount, tileCount)
+  if (winChance <= 0) return 0
+  return (100 - houseEdge) / winChance
+}

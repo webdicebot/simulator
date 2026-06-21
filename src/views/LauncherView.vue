@@ -21,6 +21,14 @@ const games = [
     color: '#f01d1d',
     path: '/limbo',
   },
+  {
+    id: 'mines',
+    name: 'Mines',
+    description: 'Test your betting scripts by webdicebot.net',
+    icon: 'mdi:mine',
+    color: '#f59e0b',
+    path: '/mines',
+  },
 ]
 
 const launchGame = (path) => {

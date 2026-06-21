@@ -10,9 +10,9 @@
         </div>
       </div>
       <div class="balance-actions">
-        <button class="quick-btn" title="Half" @click="$emit('set-bet', balance / 2)">½</button>
-        <button class="quick-btn" title="Max" @click="$emit('set-bet', balance)">Max</button>
-        <button class="quick-btn" title="Double" @click="$emit('set-bet', amount * 2)">2x</button>
+        <button class="quick-btn" title="Half" :disabled="roundActive" @click="$emit('set-bet', balance / 2)">½</button>
+        <button class="quick-btn" title="Max" :disabled="roundActive" @click="$emit('set-bet', balance)">Max</button>
+        <button class="quick-btn" title="Double" :disabled="roundActive" @click="$emit('set-bet', amount * 2)">2x</button>
       </div>
     </div>
 
@@ -27,6 +27,7 @@
           type="number"
           class="bet-input"
           :value="amount"
+          :disabled="roundActive"
           min="0.00000001"
           step="0.00000001"
           @input="$emit('update:amount', Number($event.target.value))"
@@ -39,15 +40,18 @@
         id="btn-manual-bet"
         class="bet-button"
         :class="{ 'is-loading': isRolling }"
-        :disabled="isRolling || balance <= 0"
-        @click="$emit('bet')"
+        :disabled="isRolling || isAutoRunning || (!roundActive && balance <= 0) || (roundActive && !canCashout)"
+        @click="handlePrimaryAction"
       >
         <span v-if="isRolling" class="loading-dots"> <span></span><span></span><span></span> </span>
         <span v-else class="bet-btn-content">
-          <Icon icon="mdi:lightning-bolt" :width="16" />
-          BET
+          <Icon :icon="roundActive ? 'mdi:cash-fast' : 'mdi:lightning-bolt'" :width="16" />
+          {{ currentGame === 'mines' ? (roundActive ? 'CASHOUT' : 'START') : 'BET' }}
         </span>
-        <div v-if="profitOnWin > 0 && !isRolling" class="bet-profit-hint">
+        <div v-if="roundActive && canCashout && !isRolling" class="bet-profit-hint">
+          Receive: {{ cashoutAmount.toFixed(8) }} BTC
+        </div>
+        <div v-else-if="profitOnWin > 0 && !isRolling && !roundActive" class="bet-profit-hint">
           Profit on win: +{{ profitOnWin.toFixed(8) }} BTC
         </div>
       </button>
@@ -102,7 +106,7 @@
     </Transition>
 
     <!-- Auto Bet Controls -->
-    <div class="auto-section">
+    <div v-if="!roundActive" class="auto-section">
       <div class="auto-header" @click="toggleAuto">
         <div class="auto-title">
           <Icon icon="mdi:robot-outline" :width="16" />
@@ -208,6 +212,9 @@ const props = defineProps({
   profitOnWin: { type: Number, default: 0 },
   isRolling: { type: Boolean, default: false },
   isAutoRunning: { type: Boolean, default: false },
+  roundActive: { type: Boolean, default: false },
+  canCashout: { type: Boolean, default: false },
+  cashoutAmount: { type: Number, default: 0 },
   // Limbo specific
   limboTarget: { type: Number, default: 2.00 },
   winChance: { type: Number, default: 49.5 },
@@ -216,6 +223,7 @@ const props = defineProps({
 const emit = defineEmits([
   'update:amount', 
   'bet', 
+  'cashout',
   'set-bet', 
   'auto-start', 
   'auto-stop', 
@@ -223,7 +231,7 @@ const emit = defineEmits([
   'update:limboTarget',
 ])
 
-const isBroke = computed(() => props.balance <= 0)
+const isBroke = computed(() => props.balance <= 0 && !props.roundActive)
 
 const autoExpanded = ref(false)
 const autoConfig = reactive({
@@ -243,6 +251,10 @@ const formattedBalance = computed(() => {
 
 function toggleAuto() {
   autoExpanded.value = !autoExpanded.value
+}
+
+function handlePrimaryAction() {
+  emit(props.roundActive ? 'cashout' : 'bet')
 }
 
 function updateLimboTarget(val) {
@@ -360,6 +372,10 @@ function updateWinChance(val) {
   background: var(--color-bg-hover);
   color: var(--color-text-primary);
   border-color: var(--color-blue);
+}
+.quick-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* Bet Row */

@@ -1,5 +1,15 @@
 import { ref, reactive, computed, watch } from 'vue'
-import { rollDice, randomSeed, calcMultiplier, calcWinChance, calcLimboWinChance, calcLimboMultiplier } from '@/utils/diceEngine.js'
+import {
+  rollDice,
+  randomSeed,
+  calcMultiplier,
+  calcWinChance,
+  calcLimboWinChance,
+  calcLimboMultiplier,
+  generateMines,
+  calcMinesMultiplier,
+  calcMinesWinChance,
+} from '@/utils/diceEngine.js'
 import { useStats } from './useStats.js'
 import { useBetHistory } from './useBetHistory.js'
 
@@ -10,12 +20,13 @@ export function useSimulator() {
     recentRolls, limboHistory, lastResult,
     uiBalance, uiBetAmount, uiProfitOnWin,
     uiTarget, uiSide, uiMultiplier, uiWinChance, uiLimboTarget,
+    uiMinesTarget, uiMinesPicks,
     recordHistory, syncUI, initUI, resetHistory,
   } = useBetHistory()
 
   // ─── Config state ─────────────────────────────────────────────────────────
   const config = reactive({
-    currentGame: 'dice', // 'dice' | 'limbo'
+    currentGame: 'dice', // 'dice' | 'limbo' | 'mines'
     balance: 1000,
     decimal: 8,
     delay: 0,
@@ -40,6 +51,9 @@ export function useSimulator() {
     side: 'under', // 'under' | 'over'
     // Limbo specific
     limboTarget: 2.00,
+    // Mines 6x4 specific (tile indexes 0-23)
+    minesTarget: 3,
+    minesPicks: [1, 5, 10, 15, 20],
   })
 
   // ─── Rolling flag ─────────────────────────────────────────────────────────
@@ -49,17 +63,19 @@ export function useSimulator() {
   const multiplier = computed(() => {
     if (config.currentGame === 'dice') {
       return calcMultiplier(bet.target, bet.side, config.houseEdge)
-    } else {
+    } else if (config.currentGame === 'limbo') {
       return bet.limboTarget
     }
+    return calcMinesMultiplier(bet.minesTarget, bet.minesPicks.length, config.houseEdge)
   })
 
   const winChance = computed(() => {
     if (config.currentGame === 'dice') {
       return calcWinChance(bet.target, bet.side)
-    } else {
+    } else if (config.currentGame === 'limbo') {
       return calcLimboWinChance(bet.limboTarget, config.houseEdge)
     }
+    return calcMinesWinChance(bet.minesTarget, bet.minesPicks.length)
   })
 
   const profitOnWin = computed(() => bet.amount * multiplier.value - bet.amount)
@@ -80,6 +96,8 @@ export function useSimulator() {
       multiplier: multiplier.value,
       winChance: winChance.value,
       limboTarget: bet.limboTarget,
+      minesTarget: bet.minesTarget,
+      minesPicks: bet.minesPicks,
     }
   }
 
@@ -102,6 +120,15 @@ export function useSimulator() {
     resetHistory(_uiSnapshot())
   }
 
+  function recordExternalResult(result) {
+    if (!config.silent) {
+      recordResult({ win: result.win, profit: result.profit, amount: result.amount })
+      recordHistory(result)
+      syncUI(_uiSnapshot())
+    }
+    return result
+  }
+
   async function placeBet() {
     isRolling.value = true
 
@@ -115,11 +142,30 @@ export function useSimulator() {
         isRolling.value = false
         return { error: 'Target must be 1–99' }
       }
-    } else {
+    } else if (config.currentGame === 'limbo') {
       if (bet.limboTarget < 1.01) {
         isRolling.value = false
         return { error: 'Target must be >= 1.01' }
       }
+    } else {
+      const uniquePicks = Array.from(new Set(bet.minesPicks.map(Number)))
+      if (!Number.isInteger(bet.minesTarget) || bet.minesTarget < 1 || bet.minesTarget > 23) {
+        isRolling.value = false
+        return { error: 'Mines must be an integer from 1 to 23' }
+      }
+      if (uniquePicks.length === 0) {
+        isRolling.value = false
+        return { error: 'Select at least one tile' }
+      }
+      if (uniquePicks.some((pick) => !Number.isInteger(pick) || pick < 0 || pick > 23)) {
+        isRolling.value = false
+        return { error: 'Tile numbers must be from 0 to 23' }
+      }
+      if (uniquePicks.length > 24 - bet.minesTarget) {
+        isRolling.value = false
+        return { error: 'Selected tiles exceed available safe tiles' }
+      }
+      bet.minesPicks = uniquePicks
     }
 
     if (config.balance < bet.amount) {
@@ -134,6 +180,7 @@ export function useSimulator() {
     let win = false
     let currentMultiplier = 0
     let resultMultiplier = 0
+    let mines = null
 
     if (config.currentGame === 'dice') {
       if (bet.side === 'over') {
@@ -142,12 +189,22 @@ export function useSimulator() {
         win = resultNumber < bet.target
       }
       currentMultiplier = multiplier.value
-    } else {
+    } else if (config.currentGame === 'limbo') {
       // Limbo logic
       const chance = calcLimboWinChance(bet.limboTarget, config.houseEdge)
       win = resultNumber < chance
       currentMultiplier = bet.limboTarget
       resultMultiplier = calcLimboMultiplier(resultNumber, config.houseEdge)
+    } else {
+      mines = generateMines(
+        config.serverSeed,
+        config.clientSeed,
+        config.nonce,
+        bet.minesTarget,
+      )
+      const mineSet = new Set(mines)
+      win = bet.minesPicks.every((pick) => !mineSet.has(pick))
+      currentMultiplier = multiplier.value
     }
 
     const profit = win ? bet.amount * currentMultiplier - bet.amount : -bet.amount
@@ -159,14 +216,23 @@ export function useSimulator() {
       const result = {
         game: config.currentGame,
         nonce: config.nonce,
-        resultNumber,
+        resultNumber: config.currentGame === 'mines' ? null : resultNumber,
         resultMultiplier: config.currentGame === 'limbo' ? resultMultiplier : null,
-        target: config.currentGame === 'dice' ? bet.target : bet.limboTarget,
+        target:
+          config.currentGame === 'dice'
+            ? bet.target
+            : config.currentGame === 'limbo'
+              ? bet.limboTarget
+              : [...bet.minesPicks],
         side: config.currentGame === 'dice' ? bet.side : null,
+        minesTarget: config.currentGame === 'mines' ? bet.minesTarget : null,
+        minesPicks: config.currentGame === 'mines' ? [...bet.minesPicks] : null,
+        picks: config.currentGame === 'mines' ? [...bet.minesPicks] : null,
+        mines,
         win,
         profit,
         balance: config.balance,
-        multiplier: currentMultiplier,
+        multiplier: win ? currentMultiplier : 0,
         amount: bet.amount,
         clientSeed: config.clientSeed,
         serverSeed: config.serverSeed,
@@ -185,14 +251,23 @@ export function useSimulator() {
     const result = {
       game: config.currentGame,
       nonce: config.nonce,
-      resultNumber,
+      resultNumber: config.currentGame === 'mines' ? null : resultNumber,
       resultMultiplier: config.currentGame === 'limbo' ? resultMultiplier : null,
-      target: config.currentGame === 'dice' ? bet.target : bet.limboTarget,
+      target:
+        config.currentGame === 'dice'
+          ? bet.target
+          : config.currentGame === 'limbo'
+            ? bet.limboTarget
+            : [...bet.minesPicks],
       side: config.currentGame === 'dice' ? bet.side : null,
+      minesTarget: config.currentGame === 'mines' ? bet.minesTarget : null,
+      minesPicks: config.currentGame === 'mines' ? [...bet.minesPicks] : null,
+      picks: config.currentGame === 'mines' ? [...bet.minesPicks] : null,
+      mines,
       win,
       profit,
       balance: config.balance,
-      multiplier: currentMultiplier,
+      multiplier: win ? currentMultiplier : 0,
       amount: bet.amount,
       clientSeed: config.clientSeed,
       serverSeed: config.serverSeed,
@@ -220,6 +295,8 @@ export function useSimulator() {
     uiMultiplier,
     uiWinChance,
     uiLimboTarget,
+    uiMinesTarget,
+    uiMinesPicks,
     // Stats (from useStats)
     stats,
     // Computed
@@ -231,6 +308,7 @@ export function useSimulator() {
     randomizeClientSeed,
     randomizeServerSeed,
     resetStats,
+    recordExternalResult,
     placeBet,
   }
 }

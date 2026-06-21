@@ -1,13 +1,14 @@
 import { diceStore } from '@/store/diceStore.js'
 import { limboStore } from '@/store/limboStore.js'
+import { minesStore } from '@/store/minesStore.js'
 
 /**
  * Unified bet function — routes to the correct game engine.
  *
  * @param {number} amount            - Wager amount
  * @param {number} target            - Roll threshold (Dice: 0–99) | target multiplier (Limbo: >= 1.01)
- * @param {'dice'|'limbo'} game      - Which game to simulate
- * @param {'over'|'under'} [side]    - Dice only: 'over' or 'under'. Omit to keep current store value.
+ * @param {'dice'|'limbo'|'mines'} game - Which game to simulate
+ * @param {'over'|'under'|number[]} [sideOrPicks] - Dice side or Mines tile indexes.
  * @returns {Promise<object>}        - Bet result from the corresponding store
  *
  * Examples:
@@ -20,13 +21,13 @@ import { limboStore } from '@/store/limboStore.js'
  *   - Each game has its own independent balance, stats, and history.
  *   - Limbo ignores the `side` parameter entirely.
  */
-export async function placeBetUnified(amount, target, game, side) {
+export async function placeBetUnified(amount, target, game, sideOrPicks) {
   if (game === 'dice') {
     const store = diceStore
     store.bet.amount = Number(amount)
     store.bet.target = Number(target)
-    if (side === 'over' || side === 'under') {
-      store.bet.side = side
+    if (sideOrPicks === 'over' || sideOrPicks === 'under') {
+      store.bet.side = sideOrPicks
     }
     return await store.placeBet()
   }
@@ -38,5 +39,14 @@ export async function placeBetUnified(amount, target, game, side) {
     return await store.placeBet()
   }
 
-  return { error: `Unknown game: "${game}". Use "dice" or "limbo".` }
+  if (game === 'mines') {
+    const store = minesStore
+    if (store.minesRound.active) return { error: 'Finish the active Mines round first' }
+    store.bet.amount = Number(amount)
+    store.bet.minesTarget = Number(target)
+    if (Array.isArray(sideOrPicks)) store.bet.minesPicks = sideOrPicks.map(Number)
+    return await store.placeBet()
+  }
+
+  return { error: `Unknown game: "${game}". Use "dice", "limbo", or "mines".` }
 }

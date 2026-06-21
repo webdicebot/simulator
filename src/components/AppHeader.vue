@@ -22,6 +22,9 @@
             <template v-if="roll.game === 'limbo'">
               {{ roll.resultMultiplier.toFixed(2) }}x
             </template>
+            <template v-else-if="roll.game === 'mines'">
+              {{ roll.win ? `${roll.multiplier.toFixed(2)}x` : 'BOOM' }}
+            </template>
             <template v-else>
               {{ roll.resultNumber.toFixed(2) }}
             </template>

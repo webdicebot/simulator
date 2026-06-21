@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LauncherView from '../views/LauncherView.vue'
 import DiceView from '../views/DiceView.vue'
 import LimboView from '../views/LimboView.vue'
+import MinesView from '../views/MinesView.vue'
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/limbo',
     name: 'limbo',
     component: LimboView
+  },
+  {
+    path: '/mines',
+    name: 'mines',
+    component: MinesView
   }
 ]
 
