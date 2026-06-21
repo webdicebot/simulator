@@ -3,6 +3,7 @@ import LauncherView from '../views/LauncherView.vue'
 import DiceView from '../views/DiceView.vue'
 import LimboView from '../views/LimboView.vue'
 import MinesView from '../views/MinesView.vue'
+import KenoView from '../views/KenoView.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/mines',
     name: 'mines',
     component: MinesView
+  },
+  {
+    path: '/keno',
+    name: 'keno',
+    component: KenoView
   }
 ]
 

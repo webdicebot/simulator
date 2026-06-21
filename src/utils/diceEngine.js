@@ -77,8 +77,8 @@ export function calcLimboMultiplier(resultNumber, houseEdge = 1) {
 }
 
 // --- Mines 6x4 Specific ---
-function createMinesRandom(serverSeed, clientSeed, nonce) {
-  const hash = sha512(serverSeed, `${clientSeed}-${nonce}-mines`)
+function createGameRandom(serverSeed, clientSeed, nonce, game) {
+  const hash = sha512(serverSeed, `${clientSeed}-${nonce}-${game}`)
   let state = Number(BigInt(`0x${hash}`) & 0xffffffffn) || 0x6d2b79f5
 
   return function nextRandom() {
@@ -92,7 +92,7 @@ function createMinesRandom(serverSeed, clientSeed, nonce) {
 
 export function generateMines(serverSeed, clientSeed, nonce, bombCount, tileCount = 24) {
   const tiles = Array.from({ length: tileCount }, (_, index) => index)
-  const random = createMinesRandom(serverSeed, clientSeed, nonce)
+  const random = createGameRandom(serverSeed, clientSeed, nonce, 'mines')
 
   for (let index = 0; index < bombCount; index++) {
     const swapIndex = index + Math.floor(random() * (tileCount - index))
@@ -120,4 +120,32 @@ export function calcMinesMultiplier(bombCount, pickCount, houseEdge = 1, tileCou
   const winChance = calcMinesWinChance(bombCount, pickCount, tileCount)
   if (winChance <= 0) return 0
   return (100 - houseEdge) / winChance
+}
+
+// --- Keno Specific ---
+const KENO_PAYOUTS = {
+  low: [0, 0, 0, 0.5, 1, 2, 3, 5, 10, 25, 50],
+  classic: [0, 0, 0, 0, 2, 4, 7, 10, 20, 50, 100],
+  medium: [0, 0, 0, 0, 1.5, 3, 6, 12, 30, 100, 500],
+  high: [0, 0, 0, 0, 0, 2, 10, 50, 250, 1000, 5000],
+}
+
+export function generateKeno(serverSeed, clientSeed, nonce, drawCount = 10) {
+  const numbers = Array.from({ length: 40 }, (_, index) => index + 1)
+  const random = createGameRandom(serverSeed, clientSeed, nonce, 'keno')
+
+  for (let index = 0; index < drawCount; index++) {
+    const swapIndex = index + Math.floor(random() * (numbers.length - index))
+    const number = numbers[index]
+    numbers[index] = numbers[swapIndex]
+    numbers[swapIndex] = number
+  }
+
+  return numbers.slice(0, drawCount).sort((a, b) => a - b)
+}
+
+export function calcKenoMultiplier(risk, hits, houseEdge = 1) {
+  const payouts = KENO_PAYOUTS[risk] || KENO_PAYOUTS.classic
+  const payout = payouts[Math.min(10, Math.max(0, hits))] || 0
+  return payout * (1 - houseEdge / 100)
 }

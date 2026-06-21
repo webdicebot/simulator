@@ -37,6 +37,9 @@
             <template v-else-if="roll.game === 'mines'">
               {{ roll.win ? `${roll.multiplier.toFixed(2)}x` : 'BOOM' }}
             </template>
+            <template v-else-if="roll.game === 'keno'">
+              {{ roll.hits }}H · {{ roll.multiplier.toFixed(2) }}x
+            </template>
             <template v-else>
               {{ roll.resultNumber.toFixed(2) }}
               <span class="side-tag">{{ roll.side === 'under' ? '↓' : '↑' }}</span>
@@ -45,6 +48,9 @@
           <span class="col-target">
             <template v-if="roll.game === 'mines'">
               {{ roll.minesPicks.length }}p / {{ roll.minesTarget }}m
+            </template>
+            <template v-else-if="roll.game === 'keno'">
+              {{ roll.kenoNumbers.length }}p / {{ roll.kenoRisk }}
             </template>
             <template v-else>{{ roll.target }}</template>
           </span>
@@ -116,6 +122,9 @@
                 <template v-else-if="verifyRoll.game === 'mines'">
                   {{ verifyRoll.mines.join(', ') }}
                 </template>
+                <template v-else-if="verifyRoll.game === 'keno'">
+                  {{ verifyRoll.drawnNumbers.join(', ') }}
+                </template>
                 <template v-else>
                   {{ verifyRoll.resultNumber.toFixed(2) }}
                 </template>
@@ -133,7 +142,7 @@
           </div>
 
           <!-- Hash output -->
-          <div v-if="computedHash && verifyRoll.game !== 'mines'" class="hash-section">
+          <div v-if="computedHash && !['mines', 'keno'].includes(verifyRoll.game)" class="hash-section">
             <label class="hash-label">
               <Icon icon="mdi:lock-outline" :width="13" />
               HMAC-SHA512 Output (first 5 hex chars used)
@@ -167,7 +176,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
-import { generateMines } from '@/utils/diceEngine.js'
+import { generateKeno, generateMines } from '@/utils/diceEngine.js'
 
 defineProps({
   rolls: {
@@ -205,6 +214,17 @@ function runVerify(roll) {
     computedResult.value = mines.join(', ')
     verifyStatus.value =
       mines.length === roll.mines.length && mines.every((mine, index) => mine === roll.mines[index])
+        ? 'valid'
+        : 'invalid'
+    return
+  }
+
+  if (roll.game === 'keno') {
+    const drawn = generateKeno(serverSeed, clientSeed, nonce)
+    computedResult.value = drawn.join(', ')
+    verifyStatus.value =
+      drawn.length === roll.drawnNumbers.length &&
+      drawn.every((number, index) => number === roll.drawnNumbers[index])
         ? 'valid'
         : 'invalid'
     return

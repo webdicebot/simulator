@@ -24,6 +24,8 @@ export function useBetHistory() {
   const uiLimboTarget = ref(2.0)
   const uiMinesTarget = ref(3)
   const uiMinesPicks = ref([1, 5, 10, 15, 20])
+  const uiKenoRisk = ref('classic')
+  const uiKenoNumbers = ref([])
 
   /**
    * Record a completed bet result into history.
@@ -58,6 +60,8 @@ export function useBetHistory() {
     uiLimboTarget.value = snapshot.limboTarget
     uiMinesTarget.value = snapshot.minesTarget
     uiMinesPicks.value = [...snapshot.minesPicks]
+    uiKenoRisk.value = snapshot.kenoRisk
+    uiKenoNumbers.value = [...snapshot.kenoNumbers]
   }
 
   /**
@@ -91,6 +95,8 @@ export function useBetHistory() {
     uiLimboTarget,
     uiMinesTarget,
     uiMinesPicks,
+    uiKenoRisk,
+    uiKenoNumbers,
     // Actions
     recordHistory,
     syncUI,

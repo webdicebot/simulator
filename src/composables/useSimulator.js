@@ -9,6 +9,8 @@ import {
   generateMines,
   calcMinesMultiplier,
   calcMinesWinChance,
+  generateKeno,
+  calcKenoMultiplier,
 } from '@/utils/diceEngine.js'
 import { useStats } from './useStats.js'
 import { useBetHistory } from './useBetHistory.js'
@@ -21,12 +23,13 @@ export function useSimulator() {
     uiBalance, uiBetAmount, uiProfitOnWin,
     uiTarget, uiSide, uiMultiplier, uiWinChance, uiLimboTarget,
     uiMinesTarget, uiMinesPicks,
+    uiKenoRisk, uiKenoNumbers,
     recordHistory, syncUI, initUI, resetHistory,
   } = useBetHistory()
 
   // ─── Config state ─────────────────────────────────────────────────────────
   const config = reactive({
-    currentGame: 'dice', // 'dice' | 'limbo' | 'mines'
+    currentGame: 'dice', // 'dice' | 'limbo' | 'mines' | 'keno'
     balance: 1000,
     decimal: 8,
     delay: 0,
@@ -54,6 +57,9 @@ export function useSimulator() {
     // Mines 6x4 specific (tile indexes 0-23)
     minesTarget: 3,
     minesPicks: [1, 5, 10, 15, 20],
+    // Keno specific
+    kenoRisk: 'classic',
+    kenoNumbers: [],
   })
 
   // ─── Rolling flag ─────────────────────────────────────────────────────────
@@ -66,7 +72,10 @@ export function useSimulator() {
     } else if (config.currentGame === 'limbo') {
       return bet.limboTarget
     }
-    return calcMinesMultiplier(bet.minesTarget, bet.minesPicks.length, config.houseEdge)
+    if (config.currentGame === 'mines') {
+      return calcMinesMultiplier(bet.minesTarget, bet.minesPicks.length, config.houseEdge)
+    }
+    return 0
   })
 
   const winChance = computed(() => {
@@ -75,7 +84,10 @@ export function useSimulator() {
     } else if (config.currentGame === 'limbo') {
       return calcLimboWinChance(bet.limboTarget, config.houseEdge)
     }
-    return calcMinesWinChance(bet.minesTarget, bet.minesPicks.length)
+    if (config.currentGame === 'mines') {
+      return calcMinesWinChance(bet.minesTarget, bet.minesPicks.length)
+    }
+    return 0
   })
 
   const profitOnWin = computed(() => bet.amount * multiplier.value - bet.amount)
@@ -98,6 +110,8 @@ export function useSimulator() {
       limboTarget: bet.limboTarget,
       minesTarget: bet.minesTarget,
       minesPicks: bet.minesPicks,
+      kenoRisk: bet.kenoRisk,
+      kenoNumbers: bet.kenoNumbers,
     }
   }
 
@@ -147,7 +161,7 @@ export function useSimulator() {
         isRolling.value = false
         return { error: 'Target must be >= 1.01' }
       }
-    } else {
+    } else if (config.currentGame === 'mines') {
       const uniquePicks = Array.from(new Set(bet.minesPicks.map(Number)))
       if (!Number.isInteger(bet.minesTarget) || bet.minesTarget < 1 || bet.minesTarget > 23) {
         isRolling.value = false
@@ -166,6 +180,21 @@ export function useSimulator() {
         return { error: 'Selected tiles exceed available safe tiles' }
       }
       bet.minesPicks = uniquePicks
+    } else {
+      const uniqueNumbers = Array.from(new Set(bet.kenoNumbers.map(Number))).sort((a, b) => a - b)
+      if (uniqueNumbers.length !== 10) {
+        isRolling.value = false
+        return { error: 'Select exactly 10 Keno numbers' }
+      }
+      if (uniqueNumbers.some((number) => !Number.isInteger(number) || number < 1 || number > 40)) {
+        isRolling.value = false
+        return { error: 'Keno numbers must be from 1 to 40' }
+      }
+      if (!['classic', 'low', 'medium', 'high'].includes(bet.kenoRisk)) {
+        isRolling.value = false
+        return { error: 'Invalid Keno risk' }
+      }
+      bet.kenoNumbers = uniqueNumbers
     }
 
     if (config.balance < bet.amount) {
@@ -181,6 +210,8 @@ export function useSimulator() {
     let currentMultiplier = 0
     let resultMultiplier = 0
     let mines = null
+    let drawnNumbers = null
+    let hits = null
 
     if (config.currentGame === 'dice') {
       if (bet.side === 'over') {
@@ -195,7 +226,7 @@ export function useSimulator() {
       win = resultNumber < chance
       currentMultiplier = bet.limboTarget
       resultMultiplier = calcLimboMultiplier(resultNumber, config.houseEdge)
-    } else {
+    } else if (config.currentGame === 'mines') {
       mines = generateMines(
         config.serverSeed,
         config.clientSeed,
@@ -205,9 +236,20 @@ export function useSimulator() {
       const mineSet = new Set(mines)
       win = bet.minesPicks.every((pick) => !mineSet.has(pick))
       currentMultiplier = multiplier.value
+    } else {
+      drawnNumbers = generateKeno(config.serverSeed, config.clientSeed, config.nonce)
+      const selectedSet = new Set(bet.kenoNumbers)
+      hits = drawnNumbers.filter((number) => selectedSet.has(number)).length
+      currentMultiplier = calcKenoMultiplier(bet.kenoRisk, hits, config.houseEdge)
+      win = currentMultiplier > 1
     }
 
-    const profit = win ? bet.amount * currentMultiplier - bet.amount : -bet.amount
+    const profit =
+      config.currentGame === 'keno'
+        ? bet.amount * currentMultiplier - bet.amount
+        : win
+          ? bet.amount * currentMultiplier - bet.amount
+          : -bet.amount
 
     config.balance += profit
 
@@ -216,23 +258,29 @@ export function useSimulator() {
       const result = {
         game: config.currentGame,
         nonce: config.nonce,
-        resultNumber: config.currentGame === 'mines' ? null : resultNumber,
+        resultNumber: ['mines', 'keno'].includes(config.currentGame) ? null : resultNumber,
         resultMultiplier: config.currentGame === 'limbo' ? resultMultiplier : null,
         target:
           config.currentGame === 'dice'
             ? bet.target
             : config.currentGame === 'limbo'
               ? bet.limboTarget
-              : [...bet.minesPicks],
+              : config.currentGame === 'mines'
+                ? [...bet.minesPicks]
+                : [...bet.kenoNumbers],
         side: config.currentGame === 'dice' ? bet.side : null,
         minesTarget: config.currentGame === 'mines' ? bet.minesTarget : null,
         minesPicks: config.currentGame === 'mines' ? [...bet.minesPicks] : null,
         picks: config.currentGame === 'mines' ? [...bet.minesPicks] : null,
         mines,
+        kenoRisk: config.currentGame === 'keno' ? bet.kenoRisk : null,
+        kenoNumbers: config.currentGame === 'keno' ? [...bet.kenoNumbers] : null,
+        drawnNumbers,
+        hits,
         win,
         profit,
         balance: config.balance,
-        multiplier: win ? currentMultiplier : 0,
+        multiplier: config.currentGame === 'keno' ? currentMultiplier : win ? currentMultiplier : 0,
         amount: bet.amount,
         clientSeed: config.clientSeed,
         serverSeed: config.serverSeed,
@@ -251,23 +299,29 @@ export function useSimulator() {
     const result = {
       game: config.currentGame,
       nonce: config.nonce,
-      resultNumber: config.currentGame === 'mines' ? null : resultNumber,
+      resultNumber: ['mines', 'keno'].includes(config.currentGame) ? null : resultNumber,
       resultMultiplier: config.currentGame === 'limbo' ? resultMultiplier : null,
       target:
         config.currentGame === 'dice'
           ? bet.target
           : config.currentGame === 'limbo'
             ? bet.limboTarget
-            : [...bet.minesPicks],
+            : config.currentGame === 'mines'
+              ? [...bet.minesPicks]
+              : [...bet.kenoNumbers],
       side: config.currentGame === 'dice' ? bet.side : null,
       minesTarget: config.currentGame === 'mines' ? bet.minesTarget : null,
       minesPicks: config.currentGame === 'mines' ? [...bet.minesPicks] : null,
       picks: config.currentGame === 'mines' ? [...bet.minesPicks] : null,
       mines,
+      kenoRisk: config.currentGame === 'keno' ? bet.kenoRisk : null,
+      kenoNumbers: config.currentGame === 'keno' ? [...bet.kenoNumbers] : null,
+      drawnNumbers,
+      hits,
       win,
       profit,
       balance: config.balance,
-      multiplier: win ? currentMultiplier : 0,
+      multiplier: config.currentGame === 'keno' ? currentMultiplier : win ? currentMultiplier : 0,
       amount: bet.amount,
       clientSeed: config.clientSeed,
       serverSeed: config.serverSeed,
@@ -297,6 +351,8 @@ export function useSimulator() {
     uiLimboTarget,
     uiMinesTarget,
     uiMinesPicks,
+    uiKenoRisk,
+    uiKenoNumbers,
     // Stats (from useStats)
     stats,
     // Computed

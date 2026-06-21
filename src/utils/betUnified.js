@@ -1,6 +1,7 @@
 import { diceStore } from '@/store/diceStore.js'
 import { limboStore } from '@/store/limboStore.js'
 import { minesStore } from '@/store/minesStore.js'
+import { kenoStore } from '@/store/kenoStore.js'
 
 /**
  * Unified bet function — routes to the correct game engine.
@@ -48,5 +49,13 @@ export async function placeBetUnified(amount, target, game, sideOrPicks) {
     return await store.placeBet()
   }
 
-  return { error: `Unknown game: "${game}". Use "dice", "limbo", or "mines".` }
+  if (game === 'keno') {
+    const store = kenoStore
+    store.bet.amount = Number(amount)
+    store.bet.kenoRisk = String(target || 'classic').toLowerCase()
+    if (Array.isArray(sideOrPicks)) store.bet.kenoNumbers = sideOrPicks.map(Number)
+    return await store.placeBet()
+  }
+
+  return { error: `Unknown game: "${game}". Use "dice", "limbo", "mines", or "keno".` }
 }

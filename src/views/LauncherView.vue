@@ -22,6 +22,14 @@ const games = [
     path: '/limbo',
   },
   {
+    id: 'keno',
+    name: 'Keno',
+    description: 'Test your betting scripts by webdicebot.net',
+    icon: 'mdi:numeric-10-box-multiple-outline',
+    color: '#22c55e',
+    path: '/keno',
+  },
+  {
     id: 'mines',
     name: 'Mines',
     description: 'Test your betting scripts by webdicebot.net',
