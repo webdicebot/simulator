@@ -8,8 +8,8 @@ import { ref } from 'vue'
  */
 export function useBetHistory() {
   // History lists
-  const recentRolls = ref([])      // last 100 bet results (all games)
-  const limboHistory = ref([])     // last 20 limbo raw multipliers
+  const recentRolls = ref([]) // last 100 bet results (all games)
+  const limboHistory = ref([]) // last 20 limbo raw multipliers
   const lastResult = ref(null)
 
   // UI display state (mirrors real values during normal mode,

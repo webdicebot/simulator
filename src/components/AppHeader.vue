@@ -17,17 +17,17 @@
       <!-- Live bet ticker -->
       <div class="ticker-wrapper" aria-label="Recent results ticker">
         <TransitionGroup name="ticker" tag="div" class="ticker-list">
-          <div v-for="roll in recentRolls.slice(0, 8)" :key="roll.nonce" class="ticker-item"
-            :class="roll.win ? 'win' : 'lose'">
-            <template v-if="roll.game === 'limbo'">
-              {{ roll.resultMultiplier.toFixed(2) }}x
-            </template>
+          <div
+            v-for="roll in recentRolls.slice(0, 8)"
+            :key="roll.nonce"
+            class="ticker-item"
+            :class="roll.win ? 'win' : 'lose'"
+          >
+            <template v-if="roll.game === 'limbo'"> {{ roll.resultMultiplier.toFixed(2) }}x </template>
             <template v-else-if="roll.game === 'mines'">
               {{ roll.win ? `${roll.multiplier.toFixed(2)}x` : 'BOOM' }}
             </template>
-            <template v-else-if="roll.game === 'keno'">
-              {{ roll.hits }}H · {{ roll.multiplier.toFixed(2) }}x
-            </template>
+            <template v-else-if="roll.game === 'keno'"> {{ roll.hits }}H · {{ roll.multiplier.toFixed(2) }}x </template>
             <template v-else>
               {{ roll.resultNumber.toFixed(2) }}
             </template>
@@ -41,8 +41,13 @@
           <Icon icon="mdi:percent" :width="14" />
           RTP {{ rtp }}%
         </div>
-        <button id="btn-fastmode" class="icon-btn" :class="{ active: fastMode }" title="Fast Mode"
-          @click="$emit('toggle-fast')">
+        <button
+          id="btn-fastmode"
+          class="icon-btn"
+          :class="{ active: fastMode }"
+          title="Fast Mode"
+          @click="$emit('toggle-fast')"
+        >
           <Icon icon="mdi:lightning-bolt" :width="20" />
         </button>
         <button id="btn-help" class="icon-btn" title="Help" @click="showHelp = true">
@@ -174,7 +179,6 @@ const rtp = computed(() => (100 - props.houseEdge).toFixed(2))
   flex-direction: column;
   line-height: 1.2;
 }
-
 
 .logo-name {
   color: #ffffff;

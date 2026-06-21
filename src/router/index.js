@@ -9,33 +9,33 @@ const routes = [
   {
     path: '/',
     name: 'launcher',
-    component: LauncherView
+    component: LauncherView,
   },
   {
     path: '/dice',
     name: 'dice',
-    component: DiceView
+    component: DiceView,
   },
   {
     path: '/limbo',
     name: 'limbo',
-    component: LimboView
+    component: LimboView,
   },
   {
     path: '/mines',
     name: 'mines',
-    component: MinesView
+    component: MinesView,
   },
   {
     path: '/keno',
     name: 'keno',
-    component: KenoView
-  }
+    component: KenoView,
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
 
 export default router

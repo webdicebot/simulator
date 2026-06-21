@@ -73,7 +73,7 @@ export function calcLimboMultiplier(resultNumber, houseEdge = 1) {
   // If resultNumber is 0, we clamp to avoid infinity
   const chance = Math.max(0.01, resultNumber)
   const multiplier = (100 / chance) * houseEdgeMultiplier
-  return Math.max(1.00, multiplier)
+  return Math.max(1.0, multiplier)
 }
 
 // --- Mines 6x4 Specific ---

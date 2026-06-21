@@ -21,7 +21,10 @@ function toggleNumber(number) {
   const index = selected.indexOf(number)
   if (index >= 0) selected.splice(index, 1)
   else if (selected.length < 10) selected.push(number)
-  emit('update:selected-numbers', selected.sort((a, b) => a - b))
+  emit(
+    'update:selected-numbers',
+    selected.sort((a, b) => a - b),
+  )
 }
 
 function randomizeNumbers() {
@@ -30,7 +33,10 @@ function randomizeNumbers() {
   while (selected.length < 10) {
     selected.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0])
   }
-  emit('update:selected-numbers', selected.sort((a, b) => a - b))
+  emit(
+    'update:selected-numbers',
+    selected.sort((a, b) => a - b),
+  )
 }
 
 function numberState(number) {
@@ -59,9 +65,15 @@ function numberState(number) {
       </div>
 
       <div class="keno-metrics">
-        <div><span>Selected</span><strong>{{ selectedNumbers.length }}/10</strong></div>
-        <div><span>Hits</span><strong>{{ lastResult?.hits ?? 0 }}</strong></div>
-        <div><span>Payout</span><strong>{{ (lastResult?.multiplier || 0).toFixed(2) }}x</strong></div>
+        <div>
+          <span>Selected</span><strong>{{ selectedNumbers.length }}/10</strong>
+        </div>
+        <div>
+          <span>Hits</span><strong>{{ lastResult?.hits ?? 0 }}</strong>
+        </div>
+        <div>
+          <span>Payout</span><strong>{{ (lastResult?.multiplier || 0).toFixed(2) }}x</strong>
+        </div>
       </div>
 
       <div class="keno-actions">
@@ -117,7 +129,11 @@ function numberState(number) {
   padding: 14px 16px;
   border-bottom: 1px solid var(--color-border-light);
 }
-.risk-control { display: flex; flex-direction: column; gap: 5px; }
+.risk-control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
 .risk-control > span,
 .keno-metrics span {
   color: var(--color-text-muted);
@@ -125,7 +141,10 @@ function numberState(number) {
   font-weight: 700;
   text-transform: uppercase;
 }
-.risk-options { display: grid; grid-template-columns: repeat(4, 1fr); }
+.risk-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
 .risk-options button,
 .keno-actions button {
   height: 34px;
@@ -140,7 +159,11 @@ function numberState(number) {
   border-color: var(--color-blue);
   background: var(--color-blue-glow);
 }
-.keno-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.keno-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
 .keno-metrics div {
   display: flex;
   flex-direction: column;
@@ -150,10 +173,26 @@ function numberState(number) {
   border-radius: var(--radius-sm);
   background: var(--color-bg-input);
 }
-.keno-metrics strong { color: var(--color-text-primary); font: 700 12px 'Courier New', monospace; }
-.keno-actions { display: flex; gap: 6px; }
-.keno-actions button { width: 34px; display: grid; place-items: center; border-radius: var(--radius-sm); }
-.keno-actions button:hover { color: var(--color-blue); border-color: var(--color-blue); }
+.keno-metrics strong {
+  color: var(--color-text-primary);
+  font:
+    700 12px 'Courier New',
+    monospace;
+}
+.keno-actions {
+  display: flex;
+  gap: 6px;
+}
+.keno-actions button {
+  width: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+}
+.keno-actions button:hover {
+  color: var(--color-blue);
+  border-color: var(--color-blue);
+}
 .keno-grid {
   display: grid;
   grid-template-columns: repeat(8, minmax(44px, 64px));
@@ -167,15 +206,38 @@ function numberState(number) {
   border-radius: var(--radius-md);
   background: var(--color-bg-input);
   color: var(--color-text-secondary);
-  font: 700 13px 'Courier New', monospace;
+  font:
+    700 13px 'Courier New',
+    monospace;
   cursor: pointer;
-  transition: transform 0.15s, border-color 0.15s, background 0.15s;
+  transition:
+    transform 0.15s,
+    border-color 0.15s,
+    background 0.15s;
 }
-.keno-number:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--color-blue); }
-.keno-number.selected { color: var(--color-blue); border-color: var(--color-blue); background: var(--color-blue-glow); }
-.keno-number.drawn { color: var(--color-red); border-color: rgba(248, 81, 73, 0.4); background: var(--color-red-glow); }
-.keno-number.hit { color: var(--color-green); border-color: var(--color-green); background: var(--color-green-glow); box-shadow: var(--shadow-glow-green); }
-.keno-grid.rolling .keno-number { animation: pulse 0.5s ease infinite alternate; }
+.keno-number:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--color-blue);
+}
+.keno-number.selected {
+  color: var(--color-blue);
+  border-color: var(--color-blue);
+  background: var(--color-blue-glow);
+}
+.keno-number.drawn {
+  color: var(--color-red);
+  border-color: rgba(248, 81, 73, 0.4);
+  background: var(--color-red-glow);
+}
+.keno-number.hit {
+  color: var(--color-green);
+  border-color: var(--color-green);
+  background: var(--color-green-glow);
+  box-shadow: var(--shadow-glow-green);
+}
+.keno-grid.rolling .keno-number {
+  animation: pulse 0.5s ease infinite alternate;
+}
 .keno-result {
   min-height: 42px;
   padding: 10px 16px;
@@ -186,13 +248,34 @@ function numberState(number) {
   color: var(--color-text-muted);
   font-size: 12px;
 }
-.keno-result span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.keno-result.win { color: var(--color-green); }
-.keno-result.lose { color: var(--color-red); }
-@keyframes pulse { to { opacity: 0.5; } }
+.keno-result span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.keno-result.win {
+  color: var(--color-green);
+}
+.keno-result.lose {
+  color: var(--color-red);
+}
+@keyframes pulse {
+  to {
+    opacity: 0.5;
+  }
+}
 @media (max-width: 640px) {
-  .keno-toolbar { grid-template-columns: 1fr auto; }
-  .keno-metrics { grid-column: 1 / -1; grid-row: 2; }
-  .keno-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; padding: 10px; }
+  .keno-toolbar {
+    grid-template-columns: 1fr auto;
+  }
+  .keno-metrics {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .keno-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 4px;
+    padding: 10px;
+  }
 }
 </style>

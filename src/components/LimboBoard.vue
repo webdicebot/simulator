@@ -3,19 +3,24 @@
     <!-- Main Display -->
     <div class="main-display">
       <!-- Multiplier Result -->
-      <div v-if="!isRolling && lastResult" class="multiplier-container" :class="{ 'is-win': lastResult?.win, 'is-loss': lastResult?.win === false }">
-        <div class="multiplier-value">
-          {{ displayMultiplier.toFixed(2) }}<span class="x-label">x</span>
-        </div>
+      <div
+        v-if="!isRolling && lastResult"
+        class="multiplier-container"
+        :class="{ 'is-win': lastResult?.win, 'is-loss': lastResult?.win === false }"
+      >
+        <div class="multiplier-value">{{ displayMultiplier.toFixed(2) }}<span class="x-label">x</span></div>
       </div>
 
       <!-- Spaceship Scene -->
       <div class="scene">
         <div class="stars" :class="{ 'speed-up': isRolling }"></div>
-        <div class="spaceship-wrap" :class="{ 'launching': isRolling, 'crashed': lastResult && !lastResult.win && !isRolling }">
+        <div
+          class="spaceship-wrap"
+          :class="{ launching: isRolling, crashed: lastResult && !lastResult.win && !isRolling }"
+        >
           <div class="spaceship">
             <Icon icon="mdi:rocket-launch" :width="120" class="rocket-icon" />
-            <div class="engine-flame" v-if="isRolling"></div>
+            <div v-if="isRolling" class="engine-flame"></div>
           </div>
         </div>
         <div class="ground-glow"></div>
@@ -25,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const props = defineProps({
@@ -34,22 +39,26 @@ const props = defineProps({
   isRolling: { type: Boolean, default: false },
 })
 
-const displayMultiplier = ref(1.00)
+const displayMultiplier = ref(1.0)
 
 // Update number only when rolling ends
-watch(() => props.isRolling, (newVal) => {
-  if (!newVal && props.lastResult) {
-    displayMultiplier.value = props.lastResult.resultMultiplier || 1.00
-  }
-})
+watch(
+  () => props.isRolling,
+  (newVal) => {
+    if (!newVal && props.lastResult) {
+      displayMultiplier.value = props.lastResult.resultMultiplier || 1.0
+    }
+  },
+)
 
-watch(() => props.lastResult, (newVal) => {
-  if (newVal && !props.isRolling) {
-    displayMultiplier.value = newVal.resultMultiplier || 1.00
-  }
-})
-
-
+watch(
+  () => props.lastResult,
+  (newVal) => {
+    if (newVal && !props.isRolling) {
+      displayMultiplier.value = newVal.resultMultiplier || 1.0
+    }
+  },
+)
 </script>
 
 <style scoped>
@@ -64,7 +73,6 @@ watch(() => props.lastResult, (newVal) => {
   height: 300px;
   position: relative;
 }
-
 
 /* Main Display */
 .main-display {
@@ -98,8 +106,12 @@ watch(() => props.lastResult, (newVal) => {
   font-variant-numeric: tabular-nums;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
-.is-win .multiplier-value { color: var(--color-green); }
-.is-loss .multiplier-value { color: var(--color-red); }
+.is-win .multiplier-value {
+  color: var(--color-green);
+}
+.is-loss .multiplier-value {
+  color: var(--color-red);
+}
 
 .x-label {
   font-size: 32px;
@@ -123,13 +135,13 @@ watch(() => props.lastResult, (newVal) => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
-    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0, 0, 0, 0));
   background-repeat: repeat;
   background-size: 200px 200px;
   opacity: 0.3;
@@ -140,8 +152,12 @@ watch(() => props.lastResult, (newVal) => {
 }
 
 @keyframes warpDrive {
-  from { transform: translateY(0); }
-  to { transform: translateY(200px); }
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(200px);
+  }
 }
 
 .spaceship-wrap {
@@ -170,9 +186,16 @@ watch(() => props.lastResult, (newVal) => {
 }
 
 @keyframes spaceshipShake {
-  0%, 100% { transform: translateX(-50%) translateY(-20px) rotate(0); }
-  25% { transform: translateX(-51%) translateY(-21px) rotate(-1deg); }
-  75% { transform: translateX(-49%) translateY(-19px) rotate(1deg); }
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(-20px) rotate(0);
+  }
+  25% {
+    transform: translateX(-51%) translateY(-21px) rotate(-1deg);
+  }
+  75% {
+    transform: translateX(-49%) translateY(-19px) rotate(1deg);
+  }
 }
 
 .engine-flame {
@@ -189,8 +212,14 @@ watch(() => props.lastResult, (newVal) => {
 }
 
 @keyframes flamePulse {
-  from { height: 60px; opacity: 0.8; }
-  to { height: 80px; opacity: 1; }
+  from {
+    height: 60px;
+    opacity: 0.8;
+  }
+  to {
+    height: 80px;
+    opacity: 1;
+  }
 }
 
 .ground-glow {
@@ -209,13 +238,23 @@ watch(() => props.lastResult, (newVal) => {
 }
 
 @keyframes bump {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @media (max-width: 640px) {
-  .multiplier-value { font-size: 60px; }
-  .limbo-board { height: 320px; }
+  .multiplier-value {
+    font-size: 60px;
+  }
+  .limbo-board {
+    height: 320px;
+  }
 }
 </style>

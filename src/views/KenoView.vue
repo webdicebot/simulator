@@ -9,14 +9,13 @@ import { placeBetUnified } from '@/utils/betUnified.js'
 
 const layoutRef = ref(null)
 const simulator = kenoStore
-const {
-  config, bet, isRolling, lastResult,
-  uiBalance, uiBetAmount, uiKenoRisk, uiKenoNumbers,
-  randomizeClientSeed,
-} = simulator
+const { config, bet, isRolling, lastResult, uiBalance, uiBetAmount, uiKenoRisk, uiKenoNumbers, randomizeClientSeed } =
+  simulator
 
-const { isAutoRunning, setBet, resetBalance, handleManualBet, startAuto, stopAuto } =
-  useBetController(simulator, (message, type) => layoutRef.value?.showToast(message, type))
+const { isAutoRunning, setBet, resetBalance, handleManualBet, startAuto, stopAuto } = useBetController(
+  simulator,
+  (message, type) => layoutRef.value?.showToast(message, type),
+)
 
 function clearKenoBoard() {
   bet.kenoNumbers = []
@@ -27,28 +26,66 @@ function clearKenoBoard() {
 onMounted(() => {
   config.currentGame = 'keno'
   window.DiceSim = {
-    get balance() { return config.balance },
-    get nonce() { return config.nonce },
-    get clientSeed() { return config.clientSeed },
-    get serverSeed() { return config.serverSeed },
-    get lastResult() { return lastResult.value },
-    get decimal() { return config.decimal },
-    get uiBalance() { return uiBalance.value },
-    get uiBetAmount() { return uiBetAmount.value },
-    get uiKenoRisk() { return uiKenoRisk.value },
-    get uiKenoNumbers() { return [...uiKenoNumbers.value] },
-    get silent() { return config.silent },
-    set silent(value) { config.silent = !!value },
-    get fastMode() { return config.fastMode },
-    set fastMode(value) { config.fastMode = !!value },
+    get balance() {
+      return config.balance
+    },
+    get nonce() {
+      return config.nonce
+    },
+    get clientSeed() {
+      return config.clientSeed
+    },
+    get serverSeed() {
+      return config.serverSeed
+    },
+    get lastResult() {
+      return lastResult.value
+    },
+    get decimal() {
+      return config.decimal
+    },
+    get uiBalance() {
+      return uiBalance.value
+    },
+    get uiBetAmount() {
+      return uiBetAmount.value
+    },
+    get uiKenoRisk() {
+      return uiKenoRisk.value
+    },
+    get uiKenoNumbers() {
+      return [...uiKenoNumbers.value]
+    },
+    get silent() {
+      return config.silent
+    },
+    set silent(value) {
+      config.silent = !!value
+    },
+    get fastMode() {
+      return config.fastMode
+    },
+    set fastMode(value) {
+      config.fastMode = !!value
+    },
     async bet(amount, risk, game = 'keno', numbers) {
       return await placeBetUnified(amount, risk, game, numbers)
     },
-    setKenoNumbers(numbers) { bet.kenoNumbers = Array.isArray(numbers) ? numbers.map(Number) : [] },
-    setBalance(amount) { config.balance = Number(amount) },
-    setDelay(seconds) { config.delay = Number(seconds) },
-    setHouseEdge(percent) { config.houseEdge = Number(percent) },
-    rotateSeed() { randomizeClientSeed() },
+    setKenoNumbers(numbers) {
+      bet.kenoNumbers = Array.isArray(numbers) ? numbers.map(Number) : []
+    },
+    setBalance(amount) {
+      config.balance = Number(amount)
+    },
+    setDelay(seconds) {
+      config.delay = Number(seconds)
+    },
+    setHouseEdge(percent) {
+      config.houseEdge = Number(percent)
+    },
+    rotateSeed() {
+      randomizeClientSeed()
+    },
     getConfig() {
       return {
         balance: config.balance,
@@ -66,8 +103,12 @@ onMounted(() => {
     },
   }
   Object.defineProperty(window, 'FastMode', {
-    get() { return config.fastMode },
-    set(value) { config.fastMode = !!value },
+    get() {
+      return config.fastMode
+    },
+    set(value) {
+      config.fastMode = !!value
+    },
     configurable: true,
   })
 })

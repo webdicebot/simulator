@@ -7,9 +7,10 @@
     "dev": "vite --port 5174",
     "build": "vite build",
     "preview": "vite preview --port 5174",
-    "lint": "eslint src --ext .js,.vue",
-    "lint:fix": "eslint src --ext .js,.vue --fix",
-    "format": "prettier --write \"src/**/*.{js,vue,css,scss,json}\""
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@iconify/vue": "^4.3.0",

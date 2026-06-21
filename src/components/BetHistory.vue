@@ -31,27 +31,19 @@
         >
           <span class="col-nonce">{{ roll.nonce }}</span>
           <span class="col-result" :class="roll.win ? 'win-val' : 'lose-val'">
-            <template v-if="roll.game === 'limbo'">
-              {{ roll.resultMultiplier.toFixed(2) }}x
-            </template>
+            <template v-if="roll.game === 'limbo'"> {{ roll.resultMultiplier.toFixed(2) }}x </template>
             <template v-else-if="roll.game === 'mines'">
               {{ roll.win ? `${roll.multiplier.toFixed(2)}x` : 'BOOM' }}
             </template>
-            <template v-else-if="roll.game === 'keno'">
-              {{ roll.hits }}H · {{ roll.multiplier.toFixed(2) }}x
-            </template>
+            <template v-else-if="roll.game === 'keno'"> {{ roll.hits }}H · {{ roll.multiplier.toFixed(2) }}x </template>
             <template v-else>
               {{ roll.resultNumber.toFixed(2) }}
               <span class="side-tag">{{ roll.side === 'under' ? '↓' : '↑' }}</span>
             </template>
           </span>
           <span class="col-target">
-            <template v-if="roll.game === 'mines'">
-              {{ roll.minesPicks.length }}p / {{ roll.minesTarget }}m
-            </template>
-            <template v-else-if="roll.game === 'keno'">
-              {{ roll.kenoNumbers.length }}p / {{ roll.kenoRisk }}
-            </template>
+            <template v-if="roll.game === 'mines'"> {{ roll.minesPicks.length }}p / {{ roll.minesTarget }}m </template>
+            <template v-else-if="roll.game === 'keno'"> {{ roll.kenoNumbers.length }}p / {{ roll.kenoRisk }} </template>
             <template v-else>{{ roll.target }}</template>
           </span>
           <span class="col-profit" :class="roll.win ? 'win-val' : 'lose-val'">
@@ -116,9 +108,7 @@
             <div class="vfield">
               <label>Result</label>
               <code :class="verifyRoll.win ? 'val-green' : 'val-red'">
-                <template v-if="verifyRoll.game === 'limbo'">
-                  {{ verifyRoll.resultMultiplier.toFixed(2) }}x
-                </template>
+                <template v-if="verifyRoll.game === 'limbo'"> {{ verifyRoll.resultMultiplier.toFixed(2) }}x </template>
                 <template v-else-if="verifyRoll.game === 'mines'">
                   {{ verifyRoll.mines.join(', ') }}
                 </template>
@@ -223,8 +213,7 @@ function runVerify(roll) {
     const drawn = generateKeno(serverSeed, clientSeed, nonce)
     computedResult.value = drawn.join(', ')
     verifyStatus.value =
-      drawn.length === roll.drawnNumbers.length &&
-      drawn.every((number, index) => number === roll.drawnNumbers[index])
+      drawn.length === roll.drawnNumbers.length && drawn.every((number, index) => number === roll.drawnNumbers[index])
         ? 'valid'
         : 'invalid'
     return
@@ -248,7 +237,7 @@ function runVerify(roll) {
   const result = (decimal % 10000) / 100
 
   computedResult.value = result
-  
+
   if (roll.game === 'limbo') {
     // resultMultiplier = 99 / resultNumber (clamped)
     const chance = Math.max(0.01, result)

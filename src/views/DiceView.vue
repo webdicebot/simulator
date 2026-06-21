@@ -25,41 +25,70 @@ const {
   multiplier,
   winChance,
   profitOnWin,
-  placeBet,
   randomizeClientSeed,
 } = simulator
 
-const {
-  isAutoRunning,
-  setBet,
-  resetBalance,
-  handleManualBet,
-  startAuto,
-  stopAuto,
-} = useBetController(simulator, (msg, type) => layoutRef.value?.showToast(msg, type))
+const { isAutoRunning, setBet, resetBalance, handleManualBet, startAuto, stopAuto } = useBetController(
+  simulator,
+  (msg, type) => layoutRef.value?.showToast(msg, type),
+)
 
 onMounted(() => {
   config.currentGame = 'dice'
 
   // Setup Global API for bot scripts
   window.DiceSim = {
-    get balance() { return config.balance },
-    get nonce() { return config.nonce },
-    get clientSeed() { return config.clientSeed },
-    get serverSeed() { return config.serverSeed },
-    get lastResult() { return lastResult.value },
-    get decimal() { return config.decimal },
-    get uiBalance() { return uiBalance.value },
-    get uiBetAmount() { return uiBetAmount.value },
-    get uiProfitOnWin() { return uiProfitOnWin.value },
-    get uiTarget() { return uiTarget.value },
-    get uiSide() { return uiSide.value },
-    get uiMultiplier() { return uiMultiplier.value },
-    get uiWinChance() { return uiWinChance.value },
-    get silent() { return config.silent },
-    set silent(v) { config.silent = !!v },
-    get fastMode() { return config.fastMode },
-    set fastMode(v) { config.fastMode = !!v },
+    get balance() {
+      return config.balance
+    },
+    get nonce() {
+      return config.nonce
+    },
+    get clientSeed() {
+      return config.clientSeed
+    },
+    get serverSeed() {
+      return config.serverSeed
+    },
+    get lastResult() {
+      return lastResult.value
+    },
+    get decimal() {
+      return config.decimal
+    },
+    get uiBalance() {
+      return uiBalance.value
+    },
+    get uiBetAmount() {
+      return uiBetAmount.value
+    },
+    get uiProfitOnWin() {
+      return uiProfitOnWin.value
+    },
+    get uiTarget() {
+      return uiTarget.value
+    },
+    get uiSide() {
+      return uiSide.value
+    },
+    get uiMultiplier() {
+      return uiMultiplier.value
+    },
+    get uiWinChance() {
+      return uiWinChance.value
+    },
+    get silent() {
+      return config.silent
+    },
+    set silent(v) {
+      config.silent = !!v
+    },
+    get fastMode() {
+      return config.fastMode
+    },
+    set fastMode(v) {
+      config.fastMode = !!v
+    },
 
     /**
      * Unified bet — routes by `game` param.
@@ -73,12 +102,22 @@ onMounted(() => {
     },
 
     /** Change dice side without placing a bet. */
-    setSide(side) { bet.side = side },
+    setSide(side) {
+      bet.side = side
+    },
 
-    setBalance(amount) { config.balance = Number(amount) },
-    setDelay(seconds) { config.delay = Number(seconds) },
-    setHouseEdge(pct) { config.houseEdge = Number(pct) },
-    rotateSeed() { randomizeClientSeed() },
+    setBalance(amount) {
+      config.balance = Number(amount)
+    },
+    setDelay(seconds) {
+      config.delay = Number(seconds)
+    },
+    setHouseEdge(pct) {
+      config.houseEdge = Number(pct)
+    },
+    rotateSeed() {
+      randomizeClientSeed()
+    },
     getConfig() {
       return {
         balance: config.balance,
@@ -95,8 +134,12 @@ onMounted(() => {
   }
 
   Object.defineProperty(window, 'FastMode', {
-    get() { return config.fastMode },
-    set(v) { config.fastMode = !!v },
+    get() {
+      return config.fastMode
+    },
+    set(v) {
+      config.fastMode = !!v
+    },
     configurable: true,
   })
 })

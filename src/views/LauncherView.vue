@@ -48,7 +48,7 @@ const launchGame = (path) => {
   <div class="launcher-container">
     <div class="launcher-content">
       <header class="launcher-header">
-        <img src="/logo.png" alt="Logo" class="launcher-logo" v-if="true" />
+        <img v-if="true" src="/logo.png" alt="Logo" class="launcher-logo" />
         <h1 class="launcher-title">Web DiceBot <span>Simulator</span></h1>
         <p class="launcher-subtitle">Choose a game before install bot</p>
       </header>

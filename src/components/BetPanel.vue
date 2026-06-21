@@ -12,7 +12,9 @@
       <div class="balance-actions">
         <button class="quick-btn" title="Half" :disabled="roundActive" @click="$emit('set-bet', balance / 2)">½</button>
         <button class="quick-btn" title="Max" :disabled="roundActive" @click="$emit('set-bet', balance)">Max</button>
-        <button class="quick-btn" title="Double" :disabled="roundActive" @click="$emit('set-bet', amount * 2)">2x</button>
+        <button class="quick-btn" title="Double" :disabled="roundActive" @click="$emit('set-bet', amount * 2)">
+          2x
+        </button>
       </div>
     </div>
 
@@ -62,11 +64,11 @@
       <div class="control-field">
         <label>Target Multiplier</label>
         <div class="input-with-icon">
-          <input 
-            type="number" 
-            :value="limboTarget" 
-            step="0.01" 
-            min="1.01" 
+          <input
+            type="number"
+            :value="limboTarget"
+            step="0.01"
+            min="1.01"
             @input="updateLimboTarget($event.target.value)"
           />
           <span class="input-suffix">x</span>
@@ -75,12 +77,12 @@
       <div class="control-field">
         <label>Win Chance</label>
         <div class="input-with-icon">
-          <input 
-            type="number" 
-            :value="winChance" 
-            step="0.01" 
-            min="0.01" 
-            max="98" 
+          <input
+            type="number"
+            :value="winChance"
+            step="0.01"
+            min="0.01"
+            max="98"
             @input="updateWinChance($event.target.value)"
           />
           <span class="input-suffix">%</span>
@@ -216,17 +218,17 @@ const props = defineProps({
   canCashout: { type: Boolean, default: false },
   cashoutAmount: { type: Number, default: 0 },
   // Limbo specific
-  limboTarget: { type: Number, default: 2.00 },
+  limboTarget: { type: Number, default: 2.0 },
   winChance: { type: Number, default: 49.5 },
 })
 
 const emit = defineEmits([
-  'update:amount', 
-  'bet', 
+  'update:amount',
+  'bet',
   'cashout',
-  'set-bet', 
-  'auto-start', 
-  'auto-stop', 
+  'set-bet',
+  'auto-start',
+  'auto-stop',
   'reset-balance',
   'update:limboTarget',
 ])

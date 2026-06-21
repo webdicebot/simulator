@@ -19,12 +19,25 @@ export function useSimulator() {
   // ─── Sub-composables ──────────────────────────────────────────────────────
   const { stats, recordResult, resetStats: _resetStats } = useStats()
   const {
-    recentRolls, limboHistory, lastResult,
-    uiBalance, uiBetAmount, uiProfitOnWin,
-    uiTarget, uiSide, uiMultiplier, uiWinChance, uiLimboTarget,
-    uiMinesTarget, uiMinesPicks,
-    uiKenoRisk, uiKenoNumbers,
-    recordHistory, syncUI, initUI, resetHistory,
+    recentRolls,
+    limboHistory,
+    lastResult,
+    uiBalance,
+    uiBetAmount,
+    uiProfitOnWin,
+    uiTarget,
+    uiSide,
+    uiMultiplier,
+    uiWinChance,
+    uiLimboTarget,
+    uiMinesTarget,
+    uiMinesPicks,
+    uiKenoRisk,
+    uiKenoNumbers,
+    recordHistory,
+    syncUI,
+    initUI,
+    resetHistory,
   } = useBetHistory()
 
   // ─── Config state ─────────────────────────────────────────────────────────
@@ -42,9 +55,12 @@ export function useSimulator() {
   })
 
   // Persist Fast Mode preference
-  watch(() => config.fastMode, (newVal) => {
-    localStorage.setItem('fastMode', newVal)
-  })
+  watch(
+    () => config.fastMode,
+    (newVal) => {
+      localStorage.setItem('fastMode', newVal)
+    },
+  )
 
   // ─── Bet state ────────────────────────────────────────────────────────────
   const bet = reactive({
@@ -53,7 +69,7 @@ export function useSimulator() {
     target: 49.5,
     side: 'under', // 'under' | 'over'
     // Limbo specific
-    limboTarget: 2.00,
+    limboTarget: 2.0,
     // Mines 6x4 specific (tile indexes 0-23)
     minesTarget: 3,
     minesPicks: [1, 5, 10, 15, 20],
@@ -182,9 +198,9 @@ export function useSimulator() {
       bet.minesPicks = uniquePicks
     } else {
       const uniqueNumbers = Array.from(new Set(bet.kenoNumbers.map(Number))).sort((a, b) => a - b)
-      if (uniqueNumbers.length !== 10) {
+      if (uniqueNumbers.length < 1 || uniqueNumbers.length > 10) {
         isRolling.value = false
-        return { error: 'Select exactly 10 Keno numbers' }
+        return { error: 'Select from 1 to 10 Keno numbers' }
       }
       if (uniqueNumbers.some((number) => !Number.isInteger(number) || number < 1 || number > 40)) {
         isRolling.value = false
@@ -227,12 +243,7 @@ export function useSimulator() {
       currentMultiplier = bet.limboTarget
       resultMultiplier = calcLimboMultiplier(resultNumber, config.houseEdge)
     } else if (config.currentGame === 'mines') {
-      mines = generateMines(
-        config.serverSeed,
-        config.clientSeed,
-        config.nonce,
-        bet.minesTarget,
-      )
+      mines = generateMines(config.serverSeed, config.clientSeed, config.nonce, bet.minesTarget)
       const mineSet = new Set(mines)
       win = bet.minesPicks.every((pick) => !mineSet.has(pick))
       currentMultiplier = multiplier.value

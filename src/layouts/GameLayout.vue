@@ -18,15 +18,7 @@ const props = defineProps({
 
 const router = useRouter()
 
-const {
-  config,
-  recentRolls,
-  stats,
-  uiBalance,
-  resetStats,
-  randomizeClientSeed,
-  randomizeServerSeed,
-} = props.simulator
+const { config, recentRolls, stats, uiBalance, resetStats, randomizeClientSeed, randomizeServerSeed } = props.simulator
 
 const showSettings = ref(false)
 

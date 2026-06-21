@@ -1,8 +1,8 @@
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 
 export function useBetController(simulator, showToast) {
   const { config, bet, isRolling, stats, placeBet } = simulator
-  
+
   const isAutoRunning = ref(false)
   let autoTimer = null
   let autoRemaining = 0
@@ -119,6 +119,6 @@ export function useBetController(simulator, showToast) {
     resetBalance,
     handleManualBet,
     startAuto,
-    stopAuto
+    stopAuto,
   }
 }

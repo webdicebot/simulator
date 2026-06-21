@@ -29,8 +29,9 @@ const {
   cashoutMinesRound,
 } = simulator
 
-const { isAutoRunning, setBet, resetBalance, startAuto, stopAuto } =
-  useBetController(simulator, (msg, type) => layoutRef.value?.showToast(msg, type))
+const { isAutoRunning, setBet, resetBalance, startAuto, stopAuto } = useBetController(simulator, (msg, type) =>
+  layoutRef.value?.showToast(msg, type),
+)
 
 const cashoutAmount = computed(() => minesRound.wager * minesRound.multiplier)
 
@@ -44,9 +45,7 @@ function handleOpenTile(tile) {
   if (result.error) {
     layoutRef.value?.showToast(result.error, 'lose')
   } else if (result.game === 'mines') {
-    const message = result.win
-      ? `WIN! +${result.profit.toFixed(6)}`
-      : `BOOM: -${Math.abs(result.profit).toFixed(6)}`
+    const message = result.win ? `WIN! +${result.profit.toFixed(6)}` : `BOOM: -${Math.abs(result.profit).toFixed(6)}`
     layoutRef.value?.showToast(message, result.win ? 'win' : 'lose')
   }
 }
@@ -73,38 +72,86 @@ onMounted(() => {
   config.currentGame = 'mines'
 
   window.DiceSim = {
-    get balance() { return config.balance },
-    get nonce() { return config.nonce },
-    get clientSeed() { return config.clientSeed },
-    get serverSeed() { return config.serverSeed },
-    get lastResult() { return lastResult.value },
-    get decimal() { return config.decimal },
-    get uiBalance() { return uiBalance.value },
-    get uiBetAmount() { return uiBetAmount.value },
-    get uiProfitOnWin() { return uiProfitOnWin.value },
-    get uiMinesTarget() { return uiMinesTarget.value },
-    get uiMinesPicks() { return [...uiMinesPicks.value] },
-    get uiMultiplier() { return uiMultiplier.value },
-    get uiWinChance() { return uiWinChance.value },
-    get silent() { return config.silent },
-    set silent(value) { config.silent = !!value },
-    get fastMode() { return config.fastMode },
-    set fastMode(value) { config.fastMode = !!value },
+    get balance() {
+      return config.balance
+    },
+    get nonce() {
+      return config.nonce
+    },
+    get clientSeed() {
+      return config.clientSeed
+    },
+    get serverSeed() {
+      return config.serverSeed
+    },
+    get lastResult() {
+      return lastResult.value
+    },
+    get decimal() {
+      return config.decimal
+    },
+    get uiBalance() {
+      return uiBalance.value
+    },
+    get uiBetAmount() {
+      return uiBetAmount.value
+    },
+    get uiProfitOnWin() {
+      return uiProfitOnWin.value
+    },
+    get uiMinesTarget() {
+      return uiMinesTarget.value
+    },
+    get uiMinesPicks() {
+      return [...uiMinesPicks.value]
+    },
+    get uiMultiplier() {
+      return uiMultiplier.value
+    },
+    get uiWinChance() {
+      return uiWinChance.value
+    },
+    get silent() {
+      return config.silent
+    },
+    set silent(value) {
+      config.silent = !!value
+    },
+    get fastMode() {
+      return config.fastMode
+    },
+    set fastMode(value) {
+      config.fastMode = !!value
+    },
 
     async bet(amount, target, game = 'mines', sideOrPicks) {
       return await placeBetUnified(amount, target, game, sideOrPicks)
     },
-    startMines() { return startMinesRound() },
-    openMinesTile(tile) { return openRoundTile(tile) },
-    cashoutMines() { return cashoutMinesRound() },
-    setMinesPicks(picks) { bet.minesPicks = Array.isArray(picks) ? picks.map(Number) : [] },
+    startMines() {
+      return startMinesRound()
+    },
+    openMinesTile(tile) {
+      return openRoundTile(tile)
+    },
+    cashoutMines() {
+      return cashoutMinesRound()
+    },
+    setMinesPicks(picks) {
+      bet.minesPicks = Array.isArray(picks) ? picks.map(Number) : []
+    },
     setBalance(amount) {
       if (minesRound.active) return { error: 'Cannot change balance during an active round' }
       config.balance = Number(amount)
     },
-    setDelay(seconds) { config.delay = Number(seconds) },
-    setHouseEdge(percent) { config.houseEdge = Number(percent) },
-    rotateSeed() { randomizeClientSeed() },
+    setDelay(seconds) {
+      config.delay = Number(seconds)
+    },
+    setHouseEdge(percent) {
+      config.houseEdge = Number(percent)
+    },
+    rotateSeed() {
+      randomizeClientSeed()
+    },
     getConfig() {
       return {
         balance: config.balance,
@@ -123,8 +170,12 @@ onMounted(() => {
   }
 
   Object.defineProperty(window, 'FastMode', {
-    get() { return config.fastMode },
-    set(value) { config.fastMode = !!value },
+    get() {
+      return config.fastMode
+    },
+    set(value) {
+      config.fastMode = !!value
+    },
     configurable: true,
   })
 })
