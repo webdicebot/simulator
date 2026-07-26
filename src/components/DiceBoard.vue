@@ -97,9 +97,9 @@
           type="range"
           class="slider-input"
           :value="target"
-          min="1"
-          max="99"
-          step="1"
+          min="0.01"
+          max="99.99"
+          step="0.01"
           @input="onSliderInput"
         />
 
@@ -135,7 +135,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:target', 'update:side'])
 
-const sliderPct = computed(() => (props.target / 99) * 100)
+const sliderPct = computed(() => props.target)
 
 function onSliderInput(e) {
   emit('update:target', Number(e.target.value))

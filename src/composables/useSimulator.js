@@ -168,9 +168,9 @@ export function useSimulator() {
     }
 
     if (config.currentGame === 'dice') {
-      if (bet.target <= 0 || bet.target > 99) {
+      if (bet.target < 0.01 || bet.target > 99.99) {
         isRolling.value = false
-        return { error: 'Target must be 1–99' }
+        return { error: 'Target must be 0.01-99.99' }
       }
     } else if (config.currentGame === 'limbo') {
       if (bet.limboTarget < 1.01) {
